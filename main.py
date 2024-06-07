@@ -93,7 +93,7 @@ def main(page: ft.Page):
                     ft.Image(
                         src="images/Cafeteria.png",
                         fit=ft.ImageFit.FILL,
-                        width=4000,
+                        width=2000,
                         height=1000,
                         
                     ),
