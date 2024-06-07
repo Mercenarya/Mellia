@@ -28,6 +28,8 @@ def main(page: ft.Page):
                 print("Login succcessfully")
                 CautionText.visible = False
                 page.go("/Home")
+                UsernameField.value = user
+                PasswordField.value = password
             else:
                 CautionText.visible = True
                 print("Denied !!!")
@@ -50,35 +52,38 @@ def main(page: ft.Page):
         except Exception as error:
             print(error)
         page.update()
-    logs = "SELECT username, password FROM mellia_user WHERE id = 1"
-    try:
-        mycursor.execute(logs)
-        for log_obj in mycursor:
-            obj_usrname = log_obj[0]
-            obj_pwd = log_obj[1]
-        # UsernameField.value = obj_usrname
-        # PasswordField.value = obj_pwd
-
-    except Exception as error:
-        print(error)
 
 
 
+    # logs = "SELECT username, password FROM mellia_user WHERE id = 1"
+    # try:
+    #     mycursor.execute(logs)
+    #     for log_obj in mycursor:
+    #         obj_usrname = log_obj[0]
+    #         obj_pwd = log_obj[1]
+    #     # UsernameField.value = obj_usrname
+    #     # PasswordField.value = obj_pwd
 
+    # except Exception as error:
+    #     print(error)
+
+
+
+    Greeting = ft.Text("Welcome back, Thai Thu", size=20,color="white",text_align='center')
     CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
-    UsernameField = ft.TextField(width=300,value=obj_usrname,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
-    PasswordField = ft.TextField(width=300,value=obj_pwd,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
+    UsernameField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
+    PasswordField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
     ForgotPWD = ft.TextButton(text="Forgot password ?",style=ft.ButtonStyle(color="white"))
     CopyrightBrand = ft.Text("Copyright by @mtranquoc77 Inc",size=10,color="white",text_align="center")
     rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
     LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication)
     Avatar = ft.Container(
-        image_src="images/AVT.png",
+        image_src="images/baothu.png",
         image_fit=ft.ImageFit.FILL,
         height=130,
         width=130,
         border_radius=100,
-        border=ft.border.all(1,"white")
+        border=ft.border.all(1.5,"white")
     )
     #SET UP LAYOUT
     Screen_layout = ft.Container(
@@ -98,12 +103,20 @@ def main(page: ft.Page):
                                     ft.Row(
                                         [
                                             # 
-                                            Avatar
+                                            Avatar,
+                                            
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER
                                     ),
                                     ft.Row(
                                         [
+                                            Greeting
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER
+                                    ),
+                                    ft.Row(
+                                        [
+                                            
                                             ft.Column(
                                                 [
                                                     
@@ -137,10 +150,10 @@ def main(page: ft.Page):
                             width=500,
                             height=600,
                             margin=ft.margin.only(top=50),
-                            blur=ft.Blur(10,15, ft.BlurTileMode.MIRROR),
+                            blur=ft.Blur(5,7, ft.BlurTileMode.CLAMP),
                             alignment=ft.alignment.center,
                             border_radius=20,
-                            border=ft.border.all(1,"white"),
+                            border=ft.border.all(1.5,"white"),
                             padding=ft.padding.only(top=70,left=50,right=50)
                         ),
                         alignment=ft.alignment.center
