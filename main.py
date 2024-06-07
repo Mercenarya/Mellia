@@ -28,8 +28,9 @@ def main(page: ft.Page):
                 print("Login succcessfully")
                 CautionText.visible = False
                 page.go("/Home")
-                UsernameField.value = user
-                PasswordField.value = password
+                ConfirmednandSaveLogs(e)
+                # UsernameField.value = user
+                # PasswordField.value = password
             else:
                 CautionText.visible = True
                 print("Denied !!!")
@@ -83,7 +84,7 @@ def main(page: ft.Page):
         height=130,
         width=130,
         border_radius=100,
-        border=ft.border.all(1.5,"white")
+        border=ft.border.all(1,"white")
     )
     #SET UP LAYOUT
     Screen_layout = ft.Container(
@@ -92,8 +93,8 @@ def main(page: ft.Page):
                     ft.Image(
                         src="images/Cafeteria.png",
                         fit=ft.ImageFit.FILL,
-                        width=2000,
-                        
+                        width=4000,
+                        height=1000,
                         
                     ),
                     ft.Container(
@@ -150,10 +151,10 @@ def main(page: ft.Page):
                             width=500,
                             height=600,
                             margin=ft.margin.only(top=50),
-                            blur=ft.Blur(5,7, ft.BlurTileMode.CLAMP),
+                            blur=ft.Blur(5,10, ft.BlurTileMode.CLAMP),
                             alignment=ft.alignment.center,
                             border_radius=20,
-                            border=ft.border.all(1.5,"white"),
+                            border=ft.border.all(1,"white"),
                             padding=ft.padding.only(top=70,left=50,right=50)
                         ),
                         alignment=ft.alignment.center
