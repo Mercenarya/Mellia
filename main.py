@@ -56,19 +56,6 @@ def main(page: ft.Page):
 
 
 
-    # logs = "SELECT username, password FROM mellia_user WHERE id = 1"
-    # try:
-    #     mycursor.execute(logs)
-    #     for log_obj in mycursor:
-    #         obj_usrname = log_obj[0]
-    #         obj_pwd = log_obj[1]
-    #     # UsernameField.value = obj_usrname
-    #     # PasswordField.value = obj_pwd
-
-    # except Exception as error:
-    #     print(error)
-
-
 
     Greeting = ft.Text("Welcome back, Thai Thu", size=20,color="white",text_align='center')
     CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
@@ -79,7 +66,7 @@ def main(page: ft.Page):
     rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
     LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication)
     Avatar = ft.Container(
-        image_src="images/baothu.png",
+        image_src="images/AVT.png",
         image_fit=ft.ImageFit.FILL,
         height=130,
         width=130,
@@ -95,6 +82,9 @@ def main(page: ft.Page):
                         fit=ft.ImageFit.FILL,
                         width=2000,
                         height=1000,
+                        expand= True,
+                        opacity=0.9
+                        
                         
                     ),
                     ft.Container(
@@ -214,6 +204,9 @@ def main(page: ft.Page):
             ),
             
         ],
+        
+        
+        bgcolor=ft.colors.BLUE_GREY,
         on_change=selected_page,
         
     )
@@ -245,7 +238,7 @@ def main(page: ft.Page):
     Coffee_banner = ft.Container(
         ft.Row(
             controls=[
-                ft.Text('Coffee & tea',size=30),
+                ft.Text('Coffee & tea',size=30,color="white"),
             ],
             
         ),
@@ -255,7 +248,7 @@ def main(page: ft.Page):
     Dessert_banner = ft.Container(
         ft.Row(
             controls=[
-                ft.Text('Dessert & side dishes',size=30)
+                ft.Text('Dessert & side dishes',size=30,color="white")
             ],
             
         ),
@@ -1561,15 +1554,19 @@ def main(page: ft.Page):
         page.go(top_view.route)
 
 
+
+
     page.theme_mode = ft.ThemeMode.LIGHT
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.go(page.route)
-
+    
+    page.padding = 0
+   
 
 
     
-    page.bgcolor = "black"
+    
     page.update()
 if __name__ == "__main__":
 
