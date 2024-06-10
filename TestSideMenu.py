@@ -1,6 +1,14 @@
 import flet as ft
 import base64
+import mysql.connector
 
+db = mysql.connector.connect(
+    host = 'localhost',
+    username = 'root',
+    password = 'Minh_17102004',
+    database = 'Mellia'
+)
+cursoritem = db.cursor()
 
 def main(page: ft.Page):
     def Click(e):
@@ -25,9 +33,11 @@ def main(page: ft.Page):
     page.overlay.append(file_picked)
 
 
-    def Converted(e):
-        List_product.controls.append(Layout_IMG_1)
-        page.update()
+
+    
+
+
+        
 
 
     CategoriesSelection = ft.Dropdown(
@@ -39,10 +49,93 @@ def main(page: ft.Page):
         ]
     )
 
-    TitleIMG = ft.TextField(label="Name",width=210,border_color="black",color="black")
-    SetPrice = ft.TextField(label="Price",width=210,border_color="black",color="black")
-    widthSize = ft.TextField(label="width",width=100,border_color="black",color="black")
-    heightSize = ft.TextField(label="height",width=100,border_color="black",color="black")
+    
+    TitleIMG = ft.TextField(label="Name",width=210,border_color="black",color="white")
+    SetPrice = ft.TextField(label="Price",width=210,border_color="black",color="white")
+    ContentProduct = ft.TextField(label="Comment",width=210,border_color="black",color="white")
+    IDproduct = ft.TextField(label="ID",width=210,border_color="black",color="white")
+
+
+    TitleProduct = ft.Text(size=40,weight=ft.FontWeight.BOLD,color="white")
+    PriceProduct = ft.Text(value=str(SetPrice.value),size=40,color="white")
+    NoteProduct = ft.Text(size=15)
+    
+    
+
+    def Converted(e):
+        SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+        Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
+        PriceProduct.value = SetPrice.value+" $"
+        TitleProduct.value = TitleIMG.value
+        NoteProduct.value = ContentProduct.value
+
+        try:
+            cursoritem.execute(SaveItems,Items)
+            print("Saved")
+        except Exception as error:
+            print(error)
+        db.commit()
+
+
+        List_product.controls.append(Layout_IMG_1)
+        page.update()
+    def ListItems(e):
+        ViewAll = """ SELECT name,price,content,image
+                FROM producttb"""
+        cursoritem.execute(ViewAll)
+        for obj in cursoritem.fetchall():
+            obj_name = obj[0]
+            obj_price = obj[1]
+            obj_note = obj[2]
+            obj_img = obj[3]
+        List_product.controls.append(
+            ft.Container(
+                    ft.Column(
+                        [
+                            ft.Container(
+                                image_src=obj_img,
+                                bgcolor="white",
+                                width=450,
+                                height=350,
+                                padding=100,
+                                border_radius=ft.border_radius.only(top_left=15,top_right=15),
+                            ),
+                            ft.Container(
+                                ft.Column(
+                                    [
+                                        ft.Row(
+                                            [
+                                                ft.Column(
+                                                    [
+                                                        ft.Text(value=obj_name,size=40,weight=ft.FontWeight.BOLD,color="white"),
+                                                        ft.Text(value=obj_note,size=15,color="white"),
+                                                        ft.Text(value=obj_price,size=40,color="white"),
+                                                    ],
+                                                    width=300
+                                                ),
+                                                
+                                                AddIconButton
+                                                
+                                            ]
+                                        ),
+
+                                    ]
+                                ),
+                                padding=ft.padding.only(left=20)
+                            )
+                        ]
+                    ),
+                    width=450,
+                    height=540,
+                    padding=ft.padding.only(bottom=100),
+                    bgcolor="pink",
+                    margin=ft.margin.only(left=100,top=100),
+                    border_radius=20,
+                )
+        )
+        db.commit()
+        page.update()
+
 
 
     IMGupload = ft.IconButton(icon=ft.icons.UPLOAD,icon_color="black",bgcolor="white",on_click= lambda _:file_picked.pick_files(
@@ -62,7 +155,7 @@ def main(page: ft.Page):
         image_src=None,
         bgcolor="white",
         width=250,
-        height=250,
+        height=270,
         border_radius=15,
         border=ft.border.all(1, "black")
     )
@@ -90,15 +183,12 @@ def main(page: ft.Page):
                
                ft.Column(
                    [
+                       IDproduct,
                        TitleIMG,
+                       ContentProduct,
                        SetPrice,
                        CategoriesSelection,
-                       ft.Row(
-                           [
-                               widthSize,
-                               heightSize
-                           ]
-                       )
+                       
                    ]
                )
             ]
@@ -107,7 +197,7 @@ def main(page: ft.Page):
         width=700,
         bgcolor="pink",
         border_radius=ft.border_radius.only(top_left=30,top_right=30,bottom_left=30,bottom_right=30),
-        padding=ft.padding.only(left=100,top=100),
+        padding=ft.padding.only(left=100,top=50),
         margin=100,
         blur=ft.Blur(10,12,ft.BlurTileMode.MIRROR)
     )
@@ -122,10 +212,9 @@ def main(page: ft.Page):
                     [
                         ft.Column(
                             [
-                                
-                                ft.Text(value=str(TitleIMG.value),size=40,weight=ft.FontWeight.BOLD,color="white"),
-                                ft.Text("soft feeling and sweet taste",size=15),
-                                ft.Text(value=str(SetPrice.value),size=40,color="white"),
+                                TitleProduct,                                
+                                NoteProduct,
+                                PriceProduct
                                 
                             ],
                             width=300
@@ -166,16 +255,34 @@ def main(page: ft.Page):
         border_radius=20,
         
     )
+    
+
     List_product = ft.Row(
         [
+            
             
         ],
         scroll=ft.ScrollMode.ALWAYS
     )
+        
 
 
-
-    page.add(CustomLayut,List_product)
+    page.add(
+        ft.Row(
+            [
+                CustomLayut,
+                ft.ElevatedButton("show",on_click=ListItems),
+                
+            ],
+            scroll=ft.ScrollMode.ALWAYS
+        ),
+        ft.Row(
+            [
+                List_product
+            ],
+            scroll=ft.ScrollMode.ALWAYS
+        )
+    )
     page.scroll = ft.ScrollMode.ALWAYS
     page.update()
 if __name__ == "__main__":
