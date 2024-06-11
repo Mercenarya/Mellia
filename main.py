@@ -2,6 +2,7 @@ import flet as ft
 import mysql.connector
 import time
 from flet import View
+import base64
 
 
 
@@ -14,6 +15,371 @@ db = mysql.connector.connect(
 mycursor = db.cursor()
 
 def main(page: ft.Page):
+    #DISPLAY PRODUCT'S LIST ON MAIN PAGE
+    TitleIMG = ft.TextField(label="Name",width=210,border_color="black",color="white")
+    SetPrice = ft.TextField(label="Price",width=210,border_color="black",color="white")
+    ContentProduct = ft.TextField(label="Comment",width=210,border_color="black",color="white")
+    IDproduct = ft.TextField(label="ID",width=210,border_color="black",color="white")
+
+
+    TitleProduct = ft.Text(size=40,weight=ft.FontWeight.BOLD,color="white")
+    PriceProduct = ft.Text(value=str(SetPrice.value),size=50,weight=ft.FontWeight.BOLD,color="white")
+    NoteProduct = ft.Text(size=15)
+
+
+    #CREATE CUSTOMIZE'S LAYOUT
+    def ImageDiscline(e):
+        IMGScale.image_src_base64 = None
+        TestImgcontainer.image_src_base64 = None
+        page.update()
+    def Handle_loaded_file(e: ft.FilePickerResultEvent):
+        if e.files and len(e.files):
+            with open(e.files[0].path, 'rb') as r:
+                IMGScale.image_src_base64 = base64.b64encode(r.read()).decode('utf-8')
+                TestImgcontainer.image_src = str(e.files[0].path)
+                print(e.files[0].path)
+                page.update()
+
+    def CategoriesCustomize(e):
+        if CategoriesSelection.value == "Drink & Coffee":
+            SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+            Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
+            PriceProduct.value = str(SetPrice.value)+" $"
+            TitleProduct.value = TitleIMG.value
+            NoteProduct.value = ContentProduct.value
+            try:
+                mycursor.execute(SaveItems,Items)
+                List_product.controls.append(Layout_IMG_1)
+                print("Saved")
+            except Exception as error:
+                print(error)
+        elif CategoriesSelection.value == "Desserts & Sidedishes":
+            SaveItems = "INSERT INTO productsb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+            Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
+            PriceProduct.value = SetPrice.value
+            TitleProduct.value = TitleIMG.value
+            NoteProduct.value = ContentProduct.value
+            try:
+                mycursor.execute(SaveItems,Items)
+                List_product_2.controls.append(Layout_IMG_1)
+                print("Saved")
+            except Exception as error:
+                print(error)
+        db.commit()
+        
+        page.update()
+
+    file_picked = ft.FilePicker(on_result=Handle_loaded_file)
+    page.overlay.append(file_picked)
+
+    CategoriesSelection = ft.Dropdown(
+        label="Categories",
+        width=400,
+        border_color="white",
+        options=[
+            ft.dropdown.Option("Drink & Coffee"),
+            ft.dropdown.Option("Desserts & Sidedishes")
+        ]
+    )
+
+    
+    TitleIMG = ft.TextField(label="Name",width=400,border_color="white",color="white")
+    SetPrice = ft.TextField(label="Price",width=400,border_color="white",color="white")
+    ContentProduct = ft.TextField(label="Comment",width=400,border_color="white",color="white")
+    IDproduct = ft.TextField(label="ID",width=400,border_color="white",color="white")
+
+
+    TitleProduct = ft.Text(size=20,weight=ft.FontWeight.BOLD,color="white")
+    PriceProduct = ft.Text(value=str(SetPrice.value)+"$",weight=ft.FontWeight.BOLD,size=20,color="white")
+    NoteProduct = ft.Text(color="white")
+    
+    
+    def ClearItemChanges(e):
+        SetPrice.value = None
+        TitleIMG.value = None
+        IDproduct.value = None
+        ContentProduct.value = None
+        CategoriesSelection.value = None
+        page.update()
+    
+    IMGupload = ft.IconButton(icon=ft.icons.UPLOAD,icon_color="black",bgcolor="white",on_click= lambda _:file_picked.pick_files(
+                                    allow_multiple=False, allowed_extensions=['png']),icon_size=40)
+    IMGdiscilne = ft.IconButton(icon=ft.icons.CANCEL,icon_color="black",bgcolor="white",on_click=ImageDiscline,icon_size=40)
+    SaveItemButton = ft.ElevatedButton("Add new product",color="white",bgcolor="Blue",width=400,on_click=CategoriesCustomize)
+    ClearItemButton = ft.ElevatedButton("Clear all changes",color="white",bgcolor="red",width=400,on_click=ClearItemChanges)
+
+    IMGScale = ft.Container(
+        image_src=None,
+        bgcolor="white",
+        width=450,
+        height=470,
+        border_radius=15,
+        border=ft.border.all(1, "black")
+    )
+
+    CustomizeInput = ft.Container(
+
+        ft.Column(
+            [
+                IDproduct,
+                TitleIMG,
+                ContentProduct,
+                SetPrice,
+                CategoriesSelection,
+                SaveItemButton,
+                ClearItemButton
+            ],
+            
+        ),
+        width=500,
+        height=500,
+        padding=ft.padding.only(left=50,top=50),
+        margin=ft.margin.only(bottom=50),
+        
+            
+
+    )
+    CustomLayut = ft.Container(
+        ft.Row(
+            [
+               
+               ft.Column(
+                   [
+                        IMGScale,
+                        ft.Row(
+                            [
+                                IMGupload,
+                                IMGdiscilne,
+                                
+                                # TestUpload
+                            ],
+                            width=450,
+                            alignment=ft.MainAxisAlignment.CENTER
+                        )
+                   ]
+               ),
+               
+               ft.Column(
+                   [
+                       CustomizeInput     
+                   ]
+               )
+            ]
+        ),
+        padding=ft.padding.only(left=100,top=50),
+        margin=100,
+        
+    )
+
+
+
+
+
+
+    def ListItems(e):
+        ViewAlltb = """ SELECT name,price,content,image
+                FROM producttb"""
+        mycursor.execute(ViewAlltb)
+        for obj in mycursor.fetchall():
+            obj_name = obj[0]
+            obj_price = obj[1]
+            obj_note = obj[2]
+            obj_img = obj[3]
+            List_product.controls.append(
+                ft.Container(
+                        ft.Column(
+                            [
+                                ft.Container(
+                                    image_src=obj_img,
+                                    bgcolor="#E5E5E5",
+                                    width=250,
+                                    height=150,
+                                    padding=50,
+                                    border_radius=ft.border_radius.only(top_left=15,top_right=15),
+                                ),
+                                ft.Container(
+                                    ft.Column(
+                                        [
+                                            ft.Row(
+                                                [
+                                                    ft.Column(
+                                                        [
+                                                            ft.Text(value=obj_name,size=20,weight=ft.FontWeight.BOLD,color="white"),
+                                                            ft.Text(value=obj_note,color="white"),
+                                                            ft.Text(value=str(obj_price)+"$",size=20,weight="bold",color="white"),
+                                                        ],
+                                                        width=150
+                                                    ),
+                                                    
+                                                    AddIconButton
+                                                    
+                                                ]
+                                            ),
+
+                                        ]
+                                    ),
+                                    padding=ft.padding.only(left=20)
+                                )
+                            ]
+                        ),
+                        shadow = ft.BoxShadow(
+                            blur_radius = 5,
+                            color = ft.colors.BLACK,
+                            blur_style = ft.ShadowBlurStyle.OUTER,
+                        ),
+                        width=250,
+                        height=340,
+                        padding=ft.padding.only(bottom=100),
+                        bgcolor="#6F4E37",
+                        margin=ft.margin.only(left=10,top=10),
+                        border_radius=20,
+                        border=ft.border.BorderSide(2,"#6F4E37")
+                    )
+            )
+        ViewAlltsb = """ SELECT name,price,content,image
+            FROM productsb"""
+        mycursor.execute(ViewAlltsb)
+        for obj in mycursor.fetchall():
+            obj_name = obj[0]
+            obj_price = obj[1]
+            obj_note = obj[2]
+            obj_img = obj[3]
+            List_product_2.controls.append(
+                ft.Container(
+                        ft.Column(
+                            [
+                                ft.Container(
+                                    image_src=obj_img,
+                                    bgcolor="#E5E5E5",
+                                    width=250,
+                                    height=150,
+                                    padding=50,
+                                    border_radius=ft.border_radius.only(top_left=15,top_right=15),
+                                ),
+                                ft.Container(
+                                    ft.Column(
+                                        [
+                                            ft.Row(
+                                                [
+                                                    ft.Column(
+                                                        [
+                                                            ft.Text(value=obj_name,size=20,weight=ft.FontWeight.BOLD,color="white"),
+                                                            ft.Text(value=obj_note,color="white"),
+                                                            ft.Text(value=str(obj_price)+"$",size=20,weight="bold",color="white"),
+                                                        ],
+                                                        width=150
+                                                    ),
+                                                    
+                                                    AddIconButton
+                                                    
+                                                ]
+                                            ),
+
+                                        ]
+                                    ),
+                                    padding=ft.padding.only(left=20)
+                                )
+                            ]
+                        ),
+                        shadow = ft.BoxShadow(
+                            blur_radius = 5,
+                            color = ft.colors.BLACK,
+                            blur_style = ft.ShadowBlurStyle.OUTER,
+                        ),
+                        width=250,
+                        height=340,
+                        padding=ft.padding.only(bottom=100),
+                        bgcolor="#6F4E37",
+                        margin=ft.margin.only(left=10,top=10),
+                        border_radius=20,
+                        border=ft.border.BorderSide(2,"#6F4E37")
+                    )
+                )
+            db.commit()
+        page.update()
+    AddIconButton = ft.IconButton(icon=ft.icons.ARROW_RIGHT,bgcolor="#e1f6f4",icon_color="#6F4E37",on_click=None,icon_size=40)
+    ButtonLayout = ft.Container(
+        ft.Column(
+            [
+                ft.Row(
+                    [
+                        ft.Column(
+                            [
+                                TitleProduct,                                
+                                NoteProduct,
+                                PriceProduct
+                                
+                            ],
+                            width=150
+                        ),
+                        
+                        AddIconButton
+                        
+                    ]
+                ),
+
+            ]
+        ),
+        padding=ft.padding.only(left=20)
+    )
+    TestImgcontainer = ft.Container(
+        image_src=None,
+        bgcolor="#E5E5E5",
+        width=250,
+        height=150,
+        padding=50,
+        border_radius=ft.border_radius.only(top_left=15,top_right=15),
+    )
+    Layout_IMG_1 = ft.Container(
+        
+        ft.Column(
+            [
+                TestImgcontainer,
+                ButtonLayout
+            ]
+        ),
+        shadow = ft.BoxShadow(
+            blur_radius = 20,
+            color = ft.colors.BLACK,
+            blur_style = ft.ShadowBlurStyle.OUTER,
+        ),
+        width=250,
+        height=340,
+        padding=ft.padding.only(bottom=100),
+        bgcolor="#6F4E37",
+        margin=ft.margin.only(left=10,top=10),
+        border_radius=20,
+        border=ft.border.BorderSide(2,"#6F4E37")
+        
+    )
+    List_product = ft.Row(
+        [
+            
+            
+        ],
+        scroll=ft.ScrollMode.ALWAYS
+    )
+    List_product_2 = ft.Row(
+        [
+            
+            
+        ],
+        scroll=ft.ScrollMode.ALWAYS
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #SET UP ALL FIELD AND FUNCTIONAL BUTTON LAYOUT
     def Authentication(e):
         Authenticated = "SELECT username,password FROM mellia_user WHERE id = 1"
@@ -31,6 +397,7 @@ def main(page: ft.Page):
                 ConfirmednandSaveLogs(e)
                 # UsernameField.value = user
                 # PasswordField.value = password
+                ListItems(e)
             else:
                 CautionText.visible = True
                 print("Denied !!!")
@@ -162,10 +529,48 @@ def main(page: ft.Page):
 
 
     #Add new Order 
-    Banner_title = ft.AppBar(
-        title=ft.Text("MELLIA COFFEE & BAKERY",color="white"),
-        center_title=True,
-        bgcolor="black"
+
+    SearchTool = ft.SearchBar(
+        view_elevation=4,
+        divider_color=ft.colors.AMBER,
+        bar_hint_text="Search",
+        view_hint_text="Choose a product from the suggestions...",
+        bar_bgcolor="white",
+        width=1000
+        
+    )
+
+    Banner_title = ft.Container(
+        ft.Stack(
+            [
+                ft.Image(
+                    src="images/cafeteria.png",
+                    fit="cover",
+                    width=2000
+                ),
+                ft.Container(
+                    ft.Row(
+                        [
+                            ft.Column(
+                                
+                                [
+                                    
+                                    ft.Text("Welcome to Mellia Coffee",size=50,weight="bold",color="white"),
+                                    ft.Text("Select and enjoy our product, have a nice day",size=20,color="white")
+                                
+                                ]
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER
+                        
+                    ),
+                    width=1000,
+                    padding=ft.padding.only(top=150,left=400)
+                )
+            ]
+        ),
+        height=400,
+        margin=ft.margin.only(bottom=5)
     )
 
     def selected_page(e):
@@ -179,8 +584,8 @@ def main(page: ft.Page):
         label_type=ft.NavigationRailLabelType.ALL,
         min_width=100,
         min_extended_width=400,
-        leading=ft.FloatingActionButton(icon=ft.icons.ADD),
         group_alignment=-0.9,
+        
         destinations=[
             ft.NavigationRailDestination(
                 icon_content=ft.Icon(ft.icons.MENU_BOOK),
@@ -195,6 +600,10 @@ def main(page: ft.Page):
                 label='Bill'
             ),
             ft.NavigationRailDestination(
+                icon_content=ft.Icon(ft.icons.DASHBOARD_CUSTOMIZE),
+                label='Customize'
+            ),
+            ft.NavigationRailDestination(
                 icon_content=ft.Icon(ft.icons.ACCOUNT_BALANCE),
                 label='Income'
             ),
@@ -206,8 +615,9 @@ def main(page: ft.Page):
         ],
         
         
-        bgcolor=ft.colors.BLUE_GREY,
+        bgcolor="#6F4E37",
         on_change=selected_page,
+        
         
     )
     #Menu Rail Selection
@@ -228,523 +638,46 @@ def main(page: ft.Page):
     #-----------------
     #Customize size for image and container
 
-    ctn_width = 200
-    ctn_height = 350
-    
-
+   
     #-----------------
     #category's Banner
 
     Coffee_banner = ft.Container(
         ft.Row(
             controls=[
-                ft.Text('Coffee & tea',size=30,color="white"),
+                ft.Text('Coffee & tea',size=30,color="black",weight="bold"),
             ],
-            
+            width=2000,
+            alignment=ft.MainAxisAlignment.CENTER
         ),
-        height=50,
-        padding=ft.padding.only(right=100)
+        height=100,
+        width=1350,
+        
+
+        padding=ft.padding.only(right=50),
+        border_radius=20
     )
     Dessert_banner = ft.Container(
-        ft.Row(
+       ft.Row(
             controls=[
-                ft.Text('Dessert & side dishes',size=30,color="white")
+                ft.Text('Desserts & Side dishes',size=30,color="black",weight="bold"),
             ],
-            
+            width=2000,
+            alignment=ft.MainAxisAlignment.CENTER
         ),
-        height=50,
-        padding=ft.padding.only(right=100)
+        height=100,
+        width=1350,
+        
+
+        padding=ft.padding.only(right=50),
+        border_radius=20
     )
     #-----------------
     #Set up daytime 
     Time = ft.Text(size=15)
     settimetoday = time.strftime("%d%m%Y")
     Time.value = settimetoday
-
     
-
-    
-
-
-
-    #-----------------
-    #Coffeee & Tea Image custom
-    img1 = ft.Image(
-        src="images\Bac-xiu.png",
-        width=200,
-        height=200,
-        border_radius=20
-    )
-    img2 = ft.Image(
-        src="images\caphesuasaigonpng.png",
-        width=150,
-        height=140,
-        border_radius=20
-    )
-    img3 = ft.Image(
-        src="images\caphedenda.png",
-        width=170,
-        height=170,
-        border_radius=20
-    )
-    img4 = ft.Image(
-        src="images\caphemuoi.png",
-        width=150,
-        height=150,
-        border_radius=20
-    )
-    img5 = ft.Image(
-        src="images\lemontea.png",
-        width=150,
-        height=150,
-        border_radius=20
-    )
-    img6 = ft.Image(
-        src="images\peachtea.png",
-        width=150,
-        height=150,
-        border_radius=20
-    )
-    img7 = ft.Image(
-        src="images\orangejuice.png",
-        width=250,
-        height=150,
-        border_radius=20
-    )
-    #-----------------
-    #Dessert & side dishes
-    img8 = ft.Image(
-        src="images\Croissant.png",
-        width=200,
-        height=200,
-        border_radius=20
-    )
-    img9 = ft.Image(
-        src="images\pancake.png",
-        width=150,
-        height=200,
-        border_radius=20
-    )
-    img10 = ft.Image(
-        src="images\custad.png",
-        width=150,
-        height=200,
-        border_radius=20
-    )
-    img11 = ft.Image(
-        src="images\Sandwich.png",
-        width=150,
-        height=200,
-        border_radius=20
-    )
-    img12 = ft.Image(
-        src="images\strawberry.png",
-        width=150,
-        height=200,
-        border_radius=20
-    )
-    img13 = ft.Image(
-        src="images\Oliu.png",
-        width=150,
-        height=200,
-        border_radius=20
-    )
-
-
-
-    #---------------------
-    #Custome layout for Coffee & Tea Layout
-    bacxiu = ft.Container(
-        ft.Column(
-            controls=[
-                img1,
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Bạc xĩu",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("30.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-      
-    )
-    #This is "Bac xiu" layout
-
-
-    milkcoffee = ft.Container(
-        ft.Column(
-            controls=[
-                img2,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Cà phê sữa",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("25.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=70,left=10)
-    )
-    #This is 'Ca phe sua' Layout
-
-
-    
-
-    coffenden =  ft.Container(
-        ft.Column(
-            controls=[
-                img3,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Cà phê đen",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("20.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=15,left=10)
-    )
-    #This is 'Ca phe den ' Layout
-
-    saltcoffee = ft.Container(
-        ft.Column(
-            controls=[
-                img4,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Cà phê muối",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("30.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=50,left=10)
-      
-    )
-    #This is 'ca phe muoi' layout
-
-    lemontea = ft.Container(
-        ft.Column(
-            controls=[
-                img5,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Nước Chanh",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("25.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=50,left=10)
-    )
-    peachtea = ft.Container(
-        ft.Column(
-            controls=[
-                img6,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Trà đào",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("15.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=50,left=10)
-    )
-
-    orangejuice = ft.Container(
-        ft.Column(
-            controls=[
-                img7,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Nước Cam",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("15.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(top=50,left=10)
-    )
-    #------------------------------
-    #Customize Layout for Dessert & side Dishes
-    croissant = ft.Container(
-        ft.Column(
-            controls=[
-                img8,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Bánh Sừng Bò",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("25.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=350,left=10)
-    )
-    pancake = ft.Container(
-        ft.Column(
-            controls=[
-                img9,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Bánh Kếp mật ong",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("27.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=100,left=10)
-    )
-
-    custard = ft.Container(
-        ft.Column(
-            controls=[
-                img10,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Bánh bông lan",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("27.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=100,left=10)
-    )
-    sandwich= ft.Container(
-        ft.Column(
-            controls=[
-                img11,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Bánh Sandwich",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("30.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=100,left=10)
-    )
-    strawberry= ft.Container(
-        ft.Column(
-            controls=[
-                img12,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Dâu Tây Dà Lạt",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("31.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=100,left=10)
-    )
-    Oliwe= ft.Container(
-        ft.Column(
-            controls=[
-                img13,
-                ft.Row(height=15),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("Mứt Ô liu",size=20),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND
-                ),
-                
-                ft.Row(
-                    controls=[
-                        
-                        ft.Text("31.000 VNĐ",size=15),
-                        
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                )
-            ]
-        ),
-        height=ctn_height,
-        width=ctn_width,
-        margin= ft.margin.only(bottom=100,left=10)
-    )
     #-----------------------------------------------------------------------------------
     
     
@@ -1419,38 +1352,48 @@ def main(page: ft.Page):
     #Menu
 
     page_1 = ft.Column(
-        controls=[
-            Coffee_banner,
+        controls=[ 
+            Banner_title,
+            ft.Container(
+                ft.Row(
+                    [
+                        SearchTool,
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                margin=ft.margin.only(top=20)
+                
+            ),
+            ft.Row(
+                [
+                    Coffee_banner,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
+            ),
             ft.Row(
                 controls=[
-                    bacxiu,
-                    milkcoffee,
-                    coffenden,
-                    saltcoffee,
-                    lemontea,
-                    peachtea,
-                    orangejuice,
+                    List_product
                     
                 ],
                 scroll= ft.ScrollMode.ALWAYS,
                 height=400
             ),
-            ft.Divider(color="grey"),
-            Dessert_banner,
+            
+            ft.Row(
+                [
+                    Dessert_banner,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
+            ),
             ft.Row(
                 controls=[
-                    croissant,
-                    pancake,
-                    custard,
-                    sandwich,
-                    strawberry,
-                    Oliwe
+                    List_product_2
                 ],
                 scroll= ft.ScrollMode.ALWAYS,
                 height=400
             )
         ],
-
+        
         alignment=ft.MainAxisAlignment.START,
         expand=True,
         scroll=ft.ScrollMode.ALWAYS,
@@ -1502,13 +1445,19 @@ def main(page: ft.Page):
             
         ]
     )
+    page_4 = ft.Column(
+        controls=[
+            CustomLayut
+        ]
+    )
     #----------------------------------------------------------------------------------
     #PAGE STACK LIST 
     #Set up Page stack for route change
     page_stack = [
-        ft.Container(page_1,visible=True),
+        ft.Container(page_1,visible=True,bgcolor="#F5DEB3",height=1000,width=2000),
         ft.Container(page_2,visible=False),
-        ft.Container(page_3,visible=False)
+        ft.Container(page_3,visible=False),
+        ft.Container(page_4,visible=False)
     ]
 
     #----------------------------------------------------------------------------------
@@ -1533,18 +1482,25 @@ def main(page: ft.Page):
                 View(
                     "/Home",
                     [
-                        Banner_title,
+                        
                         ft.Row(
                             [
-                                Menu,
-                                ft.VerticalDivider(width=1,color="grey"),
+                                ft.Container(
+                                    Menu,
+                                    width=100,
+                                    height=1000,
+                                    padding=-20,
+                                    margin=ft.margin.only(right=20)
+                                ),
                                 ft.Column(page_stack,scroll=ft.ScrollMode.ALWAYS, expand=True)
                             ],
                             expand=True
                         ),
-                    ]
+                    ],
+                    bgcolor="#F5DEB3"
                 )
             )
+        
         
         page.update()
 
@@ -1556,11 +1512,11 @@ def main(page: ft.Page):
 
 
 
-    page.theme_mode = ft.ThemeMode.LIGHT
+    
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.go(page.route)
-    
+    page.bgcolor = ft.colors.BLUE
     page.padding = 0
    
 

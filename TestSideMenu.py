@@ -1,6 +1,7 @@
 import flet as ft
 import base64
 import mysql.connector
+from flet import View
 
 db = mysql.connector.connect(
     host = 'localhost',
@@ -11,6 +12,147 @@ db = mysql.connector.connect(
 cursoritem = db.cursor()
 
 def main(page: ft.Page):
+    def Authentication(e):
+        Authenticated = "SELECT username,password FROM mellia_user WHERE id = 1"
+        try:
+            cursoritem.execute(Authenticated)
+            for obj in cursoritem:
+                user = obj[0]
+                #Username
+                password = obj[1]
+                #Password
+            if UsernameField.value == user and PasswordField.value == password:
+                print("Login succcessfully")
+                CautionText.visible = False
+                page.go("/Home")
+                ConfirmednandSaveLogs(e)
+                # UsernameField.value = user
+                # PasswordField.value = password
+                ListItems(e)
+            else:
+                CautionText.visible = True
+                print("Denied !!!")
+        except Exception as error :
+            print(error)
+
+        db.commit()
+        page.update()
+        
+    def ConfirmednandSaveLogs(e):
+        logs = "SELECT username, password FROM mellia_user WHERE id = 1"
+        try:
+            cursoritem.execute(logs)
+            for log_obj in cursoritem:
+                obj_usrname = log_obj[0]
+                obj_pwd = log_obj[1]
+            UsernameField.value = obj_usrname
+            PasswordField.value = obj_pwd
+
+        except Exception as error:
+            print(error)
+        page.update()
+
+
+
+
+    Greeting = ft.Text("Welcome back, Thai Thu", size=20,color="white",text_align='center')
+    CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
+    UsernameField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
+    PasswordField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
+    ForgotPWD = ft.TextButton(text="Forgot password ?",style=ft.ButtonStyle(color="white"))
+    CopyrightBrand = ft.Text("Copyright by @mtranquoc77 Inc",size=10,color="white",text_align="center")
+    rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
+    LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication)
+    Avatar = ft.Container(
+        image_src="images/AVT.png",
+        image_fit=ft.ImageFit.FILL,
+        height=130,
+        width=130,
+        border_radius=100,
+        border=ft.border.all(1,"white")
+    )
+    #SET UP LAYOUT
+    Screen_layout = ft.Container(
+            ft.Stack(
+                [
+                    ft.Image(
+                        src="images/Cafeteria.png",
+                        fit=ft.ImageFit.FILL,
+                        width=2000,
+                        height=1000,
+                        expand= True,
+                        opacity=0.9
+                        
+                        
+                    ),
+                    ft.Container(
+                        ft.Container(
+                            ft.Column(
+                                [
+                                    ft.Row(
+                                        [
+                                            # 
+                                            Avatar,
+                                            
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER
+                                    ),
+                                    ft.Row(
+                                        [
+                                            Greeting
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER
+                                    ),
+                                    ft.Row(
+                                        [
+                                            
+                                            ft.Column(
+                                                [
+                                                    
+                                                    UsernameField,
+                                                    PasswordField,
+                                                    CautionText,
+                                                    ft.Row(
+                                                        [
+                                                            ForgotPWD,
+                                                            ft.Row(width=5),
+                                                            rememberUSR
+                                                        ],
+                                                        
+                                                        alignment=ft.MainAxisAlignment.CENTER
+                                                    ),
+                                                    LoginButton,
+                                                    ft.Row(
+                                                        [
+                                                            CopyrightBrand
+                                                        ],
+                                                        width=300,
+                                                        alignment=ft.MainAxisAlignment.CENTER
+                                                    )
+                                                ]
+                                            )
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER
+                                    )
+                                ]
+                            ),
+                            width=500,
+                            height=600,
+                            margin=ft.margin.only(top=50),
+                            blur=ft.Blur(5,10, ft.BlurTileMode.CLAMP),
+                            alignment=ft.alignment.center,
+                            border_radius=20,
+                            border=ft.border.all(1,"white"),
+                            padding=ft.padding.only(top=70,left=50,right=50)
+                        ),
+                        alignment=ft.alignment.center
+                    )
+                ]
+            ),
+            margin=ft.margin.only(bottom=100),
+            
+        )
+    
     def Click(e):
         print("ok")
         page.update()
@@ -63,7 +205,7 @@ def main(page: ft.Page):
     
 
     def Converted(e):
-        SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+        SaveItems = "INSERT INTO productsb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
         Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
         PriceProduct.value = SetPrice.value+" $"
         TitleProduct.value = TitleIMG.value
@@ -81,59 +223,59 @@ def main(page: ft.Page):
         page.update()
     def ListItems(e):
         ViewAll = """ SELECT name,price,content,image
-                FROM producttb"""
+                FROM productsb"""
         cursoritem.execute(ViewAll)
         for obj in cursoritem.fetchall():
             obj_name = obj[0]
             obj_price = obj[1]
             obj_note = obj[2]
             obj_img = obj[3]
-        List_product.controls.append(
-            ft.Container(
-                    ft.Column(
-                        [
-                            ft.Container(
-                                image_src=obj_img,
-                                bgcolor="white",
-                                width=450,
-                                height=350,
-                                padding=100,
-                                border_radius=ft.border_radius.only(top_left=15,top_right=15),
-                            ),
-                            ft.Container(
-                                ft.Column(
-                                    [
-                                        ft.Row(
-                                            [
-                                                ft.Column(
-                                                    [
-                                                        ft.Text(value=obj_name,size=40,weight=ft.FontWeight.BOLD,color="white"),
-                                                        ft.Text(value=obj_note,size=15,color="white"),
-                                                        ft.Text(value=obj_price,size=40,color="white"),
-                                                    ],
-                                                    width=300
-                                                ),
-                                                
-                                                AddIconButton
-                                                
-                                            ]
-                                        ),
-
-                                    ]
+            List_product.controls.append(
+                ft.Container(
+                        ft.Column(
+                            [
+                                ft.Container(
+                                    image_src=obj_img,
+                                    bgcolor="white",
+                                    width=450,
+                                    height=350,
+                                    padding=100,
+                                    border_radius=ft.border_radius.only(top_left=15,top_right=15),
                                 ),
-                                padding=ft.padding.only(left=20)
-                            )
-                        ]
-                    ),
-                    width=450,
-                    height=540,
-                    padding=ft.padding.only(bottom=100),
-                    bgcolor="pink",
-                    margin=ft.margin.only(left=100,top=100),
-                    border_radius=20,
-                )
-        )
-        db.commit()
+                                ft.Container(
+                                    ft.Column(
+                                        [
+                                            ft.Row(
+                                                [
+                                                    ft.Column(
+                                                        [
+                                                            ft.Text(value=obj_name,size=40,weight=ft.FontWeight.BOLD,color="white"),
+                                                            ft.Text(value=obj_note,size=15,color="white"),
+                                                            ft.Text(value=obj_price,size=40,color="white"),
+                                                        ],
+                                                        width=300
+                                                    ),
+                                                    
+                                                    AddIconButton
+                                                    
+                                                ]
+                                            ),
+
+                                        ]
+                                    ),
+                                    padding=ft.padding.only(left=20)
+                                )
+                            ]
+                        ),
+                        width=450,
+                        height=540,
+                        padding=ft.padding.only(bottom=100),
+                        bgcolor="pink",
+                        margin=ft.margin.only(left=100,top=100),
+                        border_radius=20,
+                    )
+            )
+            db.commit()
         page.update()
 
 
@@ -264,26 +406,66 @@ def main(page: ft.Page):
         ],
         scroll=ft.ScrollMode.ALWAYS
     )
-        
-
-
-    page.add(
-        ft.Row(
-            [
-                CustomLayut,
-                ft.ElevatedButton("show",on_click=ListItems),
+    def route_change(e):
+        page.views.clear
+        page.views.append(
+            View(
+                "/Login",
+                [
+                    
+                    Screen_layout
+                ],
+                padding=0
+                # scroll=ft.ScrollMode.ALWAYS
                 
-            ],
-            scroll=ft.ScrollMode.ALWAYS
-        ),
-        ft.Row(
-            [
-                List_product
-            ],
-            scroll=ft.ScrollMode.ALWAYS
+            ),
+                
         )
-    )
-    page.scroll = ft.ScrollMode.ALWAYS
+        if page.route == "/Home":
+            page.views.append(
+                View(
+                    "/Home",
+                    [
+                        ft.Column(
+                            [
+                                ft.Row(
+                                    [
+                                        CustomLayut,
+                                    ]
+                                ),
+                                ft.Row(
+                                    [
+                                        List_product
+                                    ],
+                                    scroll=ft.ScrollMode.ALWAYS
+                                )
+                            ],
+                            scroll=ft.ScrollMode.ALWAYS
+                        )
+                    ],
+                    scroll=ft.ScrollMode.ALWAYS
+                )
+            )
+        
+        page.update()
+
+    def view_pop(View):
+        page.views.pop()
+        top_view = page.views[-1]
+        page.go(top_view.route)
+
+
+
+
+    
+    page.on_route_change = route_change
+    page.on_view_pop = view_pop
+    page.go(page.route)
+    
+    page.padding = 0
+
+
+
     page.update()
 if __name__ == "__main__":
     ft.app(target=main,assets_dir='assets')
