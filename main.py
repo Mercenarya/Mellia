@@ -50,6 +50,9 @@ def main(page: ft.Page):
             try:
                 mycursor.execute(SaveItems,Items)
                 List_product.controls.append(Layout_IMG_1)
+                List_product.controls.clear()
+                List_product_2.controls.clear()
+                ListItems(e)
                 print("Saved")
             except Exception as error:
                 print(error)
@@ -62,6 +65,9 @@ def main(page: ft.Page):
             try:
                 mycursor.execute(SaveItems,Items)
                 List_product_2.controls.append(Layout_IMG_1)
+                List_product.controls.clear()
+                List_product_2.controls.clear()
+                ListItems(e)
                 print("Saved")
             except Exception as error:
                 print(error)
@@ -398,6 +404,7 @@ def main(page: ft.Page):
                 # UsernameField.value = user
                 # PasswordField.value = password
                 ListItems(e)
+                Show(e)
             else:
                 CautionText.visible = True
                 print("Denied !!!")
@@ -728,8 +735,8 @@ def main(page: ft.Page):
         ],
         on_change=PriceCategories,
         # border_color="white",
-        border_color="grey",
-        bgcolor="grey"
+        border_color="white",
+        color="white"
     )
     StatementOrders = ft.Dropdown(
         label="Order method",
@@ -739,17 +746,18 @@ def main(page: ft.Page):
             ft.dropdown.Option("on place")
             
         ],
-        # border_color="white",
+        border_color="white",
+        color="white"
         
     )
 
     #SET UP ALL FIELD
-    name = ft.TextField(label="Slot's ID",width=300, border_color="grey",bgcolor="white")
-    table = ft.TextField(label="Slot's Number ",width=200, border_color="grey",bgcolor="white")
-    Quantity_choose = ft.TextField(label="Quantity",width=300,border_color="grey",bgcolor="white")
-    Order_field = ft.TextField(label="Order",width=300,border_color="grey",bgcolor="white")
-    Price_summary = ft.TextField(label="Total",width=300,border_color="grey",read_only=True,on_change=PriceCategories,bgcolor="white")
-    Staff_name = ft.TextField(label="Waiter's name",width=200,border_color="grey",bgcolor="white")
+    name = ft.TextField(label="Slot's ID",width=300, border_color="white",color="white")
+    table = ft.TextField(label="Slot's Number ",width=200, border_color="white",color="white")
+    Quantity_choose = ft.TextField(label="Quantity",width=300,border_color="white",color="white")
+    Order_field = ft.TextField(label="Order",width=300,border_color="white",color="white")
+    Price_summary = ft.TextField(label="Total",width=300,border_color="white",color="white",read_only=True,on_change=PriceCategories)
+    Staff_name = ft.TextField(label="Waiter's name",width=200,border_color="white",color="white")
     
     
     #LOGIC FUNCTION FOR USER
@@ -772,14 +780,14 @@ def main(page: ft.Page):
             Order_list.rows.append(
             ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(int(obj_id),size=20)),
-                    ft.DataCell(ft.Text(int(obj_tb),size=20)),
-                    ft.DataCell(ft.Text(int(obj_quantity),size=20)),
-                    ft.DataCell(ft.Text(int(obj_order),size=20)),
-                    ft.DataCell(ft.Text(obj_product,size=20)),
-                    ft.DataCell(ft.Text(obj_price,size=20)),
-                    ft.DataCell(ft.Text(obj_staff,size=20)),
-                    ft.DataCell(ft.Text(obj_status,size=20)),
+                    ft.DataCell(ft.Text(int(obj_id),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(obj_tb),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(obj_quantity),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(obj_order),size=20,color="black")),
+                    ft.DataCell(ft.Text(obj_product,size=20,color="black")),
+                    ft.DataCell(ft.Text(obj_price,size=20,color="black")),
+                    ft.DataCell(ft.Text(obj_staff,size=20,color="black")),
+                    ft.DataCell(ft.Text(obj_status,size=20,color="black")),
                     ft.DataCell(option)
                 ],
                 on_select_changed=lambda e: Edit(e.control.cells[0].content.value,e.control.cells[1].content.value,
@@ -799,14 +807,14 @@ def main(page: ft.Page):
         Order_list.rows.append(
             ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(int(name.value),size=20)),
-                    ft.DataCell(ft.Text(int(table.value),size=20)),
-                    ft.DataCell(ft.Text(int(Quantity_choose.value),size=20)),
-                    ft.DataCell(ft.Text(int(Order_field.value),size=20)),
-                    ft.DataCell(ft.Text(product.value,size=20)),
-                    ft.DataCell(ft.Text(Price_summary.value,size=20)),
-                    ft.DataCell(ft.Text(Staff_name.value,size=20)),
-                    ft.DataCell(ft.Text(StatementOrders.value,size=20)),
+                    ft.DataCell(ft.Text(int(name.value),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(table.value),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(Quantity_choose.value),size=20,color="black")),
+                    ft.DataCell(ft.Text(int(Order_field.value),size=20,color="black")),
+                    ft.DataCell(ft.Text(product.value,size=20,color="black")),
+                    ft.DataCell(ft.Text(Price_summary.value,size=20,color="black")),
+                    ft.DataCell(ft.Text(Staff_name.value,size=20,color="black")),
+                    ft.DataCell(ft.Text(StatementOrders.value,size=20,color="black")),
                     ft.DataCell(option)
                 ]
             )
@@ -986,10 +994,10 @@ def main(page: ft.Page):
                 obj_price = obj[3]
                 Bill_list.rows.append(ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(int(obj_slot),size=20)),
-                        ft.DataCell(ft.Text(str(obj_prdct),size=20)),
-                        ft.DataCell(ft.Text(int(obj_order),size=20)),
-                        ft.DataCell(ft.Text(int(obj_price),size=20))
+                        ft.DataCell(ft.Text(int(obj_slot),size=20,color="black")),
+                        ft.DataCell(ft.Text(str(obj_prdct),size=20,color="black")),
+                        ft.DataCell(ft.Text(int(obj_order),size=20,color="black")),
+                        ft.DataCell(ft.Text(int(obj_price),size=20,color="black"))
                     ],
                 
                 )
@@ -1022,8 +1030,8 @@ def main(page: ft.Page):
     )
     TableTitle = ft.Container(
         
-        ft.Row([ft.Text("ORDER & PAYMENT",color="black")],alignment=ft.MainAxisAlignment.CENTER),
-        
+        ft.Row([ft.Text("ORDER & PAYMENT",color="white",weight="bold")],alignment=ft.MainAxisAlignment.CENTER),
+        bgcolor="brown",
         height=60,
         width=1370,
         border_radius=ft.border_radius.only(top_left=15,top_right=15),
@@ -1033,14 +1041,14 @@ def main(page: ft.Page):
 
     Order_list = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("No.ID",size=20)),
-            ft.DataColumn(ft.Text("No.Table",size=20)),
-            ft.DataColumn(ft.Text("Quantity",size=20)),
-            ft.DataColumn(ft.Text("Order",size=20)),
-            ft.DataColumn(ft.Text("Product",size=20)),
-            ft.DataColumn(ft.Text("Total",size=20)),
-            ft.DataColumn(ft.Text("Waiter",size=20)),
-            ft.DataColumn(ft.Text("Status",size=20)),
+            ft.DataColumn(ft.Text("No.ID",size=20,color="black")),
+            ft.DataColumn(ft.Text("No.Table",size=20,color="black")),
+            ft.DataColumn(ft.Text("Quantity",size=20,color="black")),
+            ft.DataColumn(ft.Text("Order",size=20,color="black")),
+            ft.DataColumn(ft.Text("Product",size=20,color="black")),
+            ft.DataColumn(ft.Text("Total",size=20,color="black")),
+            ft.DataColumn(ft.Text("Waiter",size=20,color="black")),
+            ft.DataColumn(ft.Text("Status",size=20,color="black")),
             ft.DataColumn(ft.Text("",size=20))
             
         ],
@@ -1054,8 +1062,14 @@ def main(page: ft.Page):
                 Order_list
             ]
         ),
-        margin=ft.margin.only(bottom=500),
-        padding=ft.padding.only(left=10)
+        margin=ft.margin.only(bottom=500,left=100),
+        padding=ft.padding.only(left=50),
+        bgcolor="",
+        shadow = ft.BoxShadow(
+            blur_radius = 5,
+            color = ft.colors.BLACK,
+            blur_style = ft.ShadowBlurStyle.OUTER,
+        ),
     )
     
 
@@ -1094,11 +1108,17 @@ def main(page: ft.Page):
                 
             ]
         ),
+        bgcolor="brown",
         width=1370,
         height=250,
-        border=ft.border.all(1,"grey"),
+        border=ft.border.all(1,"brown"),
         padding=20,
         border_radius=ft.border_radius.only(bottom_left=15,bottom_right=15),
+        shadow = ft.BoxShadow(
+            blur_radius = 5,
+            color = ft.colors.BLACK,
+            blur_style = ft.ShadowBlurStyle.OUTER,
+        ),
     )
 
 
@@ -1343,6 +1363,63 @@ def main(page: ft.Page):
     )
 
 
+    PromotionBanner = ft.Container(
+        ft.Row(
+            controls=[
+                ft.Text('Our Promotion',size=30,color="black",weight="bold"),
+            ],
+            width=2000,
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        height=100,
+        width=1350,
+        
+
+        padding=ft.padding.only(right=50),
+        border_radius=20
+    )
+
+
+    PromotionImage = ft.Container(
+        image_src="images/capuchino.png",
+        width=350,
+        height=350,
+    )
+
+    PromotionBar = ft.Container(
+
+        ft.Row(
+            [
+                PromotionImage,
+                ft.Container(
+            
+                    ft.Column(
+                        [
+                            ft.Text("Today offer",weight="bold",size=50,color="black"),
+                            ft.Text("Buy 2 products and rate us to recieve our voucher",size=20,color="black"),
+                            ft.Text("Follow our page to see more information about us",size=20,color="black")
+                        ]
+                    ),
+                    margin=ft.margin.only(left=50,top=50,bottom=100)
+                        
+                    
+                ),
+            ]
+        ),
+        
+        width=1350,
+        height=300,
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.top_center,
+            end=ft.alignment.bottom_center,
+            colors=[
+                "brown",
+                "white"
+            ]
+        ),
+        padding=ft.padding.only(left=100),
+        border_radius=40
+    )
 
 
     #----------------------------------------------------------------------------------
@@ -1391,6 +1468,18 @@ def main(page: ft.Page):
                 ],
                 scroll= ft.ScrollMode.ALWAYS,
                 height=400
+            ),
+            ft.Row(
+                [
+                    PromotionBanner,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
+            ),
+            ft.Row(
+                [
+                    PromotionBar
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
             )
         ],
         
