@@ -81,11 +81,13 @@ def main(page: ft.Page):
     CategoriesSelection = ft.Dropdown(
         label="Categories",
         width=400,
-        border_color="white",
         options=[
             ft.dropdown.Option("Drink & Coffee"),
             ft.dropdown.Option("Desserts & Sidedishes")
-        ]
+        ],
+        color="white",
+        border_color="white"
+        
     )
 
     
@@ -109,17 +111,17 @@ def main(page: ft.Page):
         page.update()
     
     IMGupload = ft.IconButton(icon=ft.icons.UPLOAD,icon_color="black",bgcolor="white",on_click= lambda _:file_picked.pick_files(
-                                    allow_multiple=False, allowed_extensions=['png']),icon_size=40)
-    IMGdiscilne = ft.IconButton(icon=ft.icons.CANCEL,icon_color="black",bgcolor="white",on_click=ImageDiscline,icon_size=40)
+                                    allow_multiple=False, allowed_extensions=['png']),icon_size=20)
+    IMGdiscilne = ft.IconButton(icon=ft.icons.DELETE,icon_color="black",bgcolor="white",on_click=ImageDiscline,icon_size=20)
     SaveItemButton = ft.ElevatedButton("Add new product",color="white",bgcolor="Blue",width=400,on_click=CategoriesCustomize)
     ClearItemButton = ft.ElevatedButton("Clear all changes",color="white",bgcolor="red",width=400,on_click=ClearItemChanges)
 
     IMGScale = ft.Container(
         image_src=None,
         bgcolor="white",
-        width=450,
-        height=470,
-        border_radius=15,
+        width=650,
+        height=670,
+        border_radius=20,
         border=ft.border.all(1, "black")
     )
 
@@ -138,10 +140,11 @@ def main(page: ft.Page):
             
         ),
         width=500,
-        height=500,
-        padding=ft.padding.only(left=50,top=50),
-        margin=ft.margin.only(bottom=50),
-        
+        height=670,
+        padding=ft.padding.only(left=50,top=30),
+        margin=ft.margin.only(bottom=55),
+        bgcolor="brown",
+        border_radius= 20
             
 
     )
@@ -159,8 +162,8 @@ def main(page: ft.Page):
                                 
                                 # TestUpload
                             ],
-                            width=450,
-                            alignment=ft.MainAxisAlignment.CENTER
+                            width=650,
+                            alignment=ft.MainAxisAlignment.START
                         )
                    ]
                ),
@@ -173,7 +176,6 @@ def main(page: ft.Page):
             ]
         ),
         padding=ft.padding.only(left=100,top=50),
-        margin=100,
         
     )
 
@@ -994,10 +996,10 @@ def main(page: ft.Page):
                 obj_price = obj[3]
                 Bill_list.rows.append(ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(int(obj_slot),size=20,color="black")),
-                        ft.DataCell(ft.Text(str(obj_prdct),size=20,color="black")),
-                        ft.DataCell(ft.Text(int(obj_order),size=20,color="black")),
-                        ft.DataCell(ft.Text(int(obj_price),size=20,color="black"))
+                        ft.DataCell(ft.Text(int(obj_slot),size=20,color="white")),
+                        ft.DataCell(ft.Text(str(obj_prdct),size=20,color="white")),
+                        ft.DataCell(ft.Text(int(obj_order),size=20,color="white")),
+                        ft.DataCell(ft.Text(int(obj_price),size=20,color="white"))
                     ],
                 
                 )
@@ -1101,7 +1103,8 @@ def main(page: ft.Page):
                         RemoveDataButton,
                         ClearButton,
                         Editbutton
-                    ]
+                    ],
+                    
                 ),
                 
                 
@@ -1142,14 +1145,15 @@ def main(page: ft.Page):
 
         ft.Row(
             [
-                ft.Text("BILL & PAYMENT")
+                ft.Text("BILL & PAYMENT",color="white",weight="bold")
             ],
             alignment=ft.MainAxisAlignment.CENTER
         ),
         height=60,
         width=1370,
         border_radius=30,
-        border=ft.border.all(1,"grey")
+        bgcolor="brown",
+        border=ft.border.all(1,"brown")
 
     )
 
@@ -1159,22 +1163,24 @@ def main(page: ft.Page):
         options=[
             ft.dropdown.Option("Cash Payment"),
             ft.dropdown.Option("Online Banking"),
-            
+        
             
         ],
-        # border_color="white",
+        color="white",
+        bgcolor="white",
+        border_color="white",
         
     )
     #Field's Form 
-    SlotID = ft.TextField(label="Slot.ID",width=320)
-    Date = ft.TextField(label="Date",width=100)
-    Month = ft.TextField(label="Month",width=100)
-    Year = ft.TextField(label="Year",width=100)
-    Coupon = ft.TextField(label="Voucher",value=0,width=200)
-    CashGiven = ft.TextField(label="Guest's Payment",width=320)
-    Change = ft.TextField(label="Change",width=200)
-    BankID = ft.TextField(label="Banking's ID",value="1029713023",width=320,color="black")
-    Bank = ft.TextField(label="Bank",width=200,value="Vietcombank")
+    SlotID = ft.TextField(label="Slot.ID",width=320,color="white",border_color="white")
+    Date = ft.TextField(label="Date",width=100,color="white",border_color="white")
+    Month = ft.TextField(label="Month",width=100,color="white",border_color="white")
+    Year = ft.TextField(label="Year",width=100,color="white",border_color="white")
+    Coupon = ft.TextField(label="Voucher",value=0,width=200,color="white",border_color="white")
+    CashGiven = ft.TextField(label="Guest's Payment",width=320,color="white",border_color="white")
+    Change = ft.TextField(label="Change",width=200,color="white",border_color="white")
+    BankID = ft.TextField(label="Banking's ID",value="1029713023",width=320,color="white",border_color="white")
+    Bank = ft.TextField(label="Bank",width=200,value="Vietcombank",color="white",border_color="white")
 
     #Button's layout
     SubmitBillbutton = ft.ElevatedButton("Submit",width=200,bgcolor="green",color="white",on_click=SetupBill)
@@ -1184,11 +1190,11 @@ def main(page: ft.Page):
 
 
     #CUSTOM BILL RELEASE
-    SlotIDrelease = ft.Text("Slot.ID: ",size=20)
-    paymentmethodrelease = ft.Text("Payment method: ",size=20)
-    Cashgivenrelease = ft.Text("Guest payment: ",size=20)
-    changerelease = ft.Text("Change: ",size=20)
-    Couponrelease = ft.Text("Voucher: ",size=20)
+    SlotIDrelease = ft.Text("Slot.ID: ",size=20,color="white")
+    paymentmethodrelease = ft.Text("Payment method: ",size=20,color="white")
+    Cashgivenrelease = ft.Text("Guest payment: ",size=20,color="white")
+    changerelease = ft.Text("Change: ",size=20,color="white")
+    Couponrelease = ft.Text("Voucher: ",size=20,color="white")
     
 
     #CUSTOM LAYOUT FOR BUTTON WITH BILL
@@ -1246,19 +1252,20 @@ def main(page: ft.Page):
         ),
         width=1370,
         height=300,
-        border=ft.border.all(1,"grey"),
+        border=ft.border.all(1,"brown"),
         padding=20,
         border_radius=20,
+        bgcolor="brown"
        
     )
 
     #Bill Payment
     Bill_list = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("Table Slot",size=20)),
-            ft.DataColumn(ft.Text("Description",size=20)),
-            ft.DataColumn(ft.Text("Quantity",size=20)),
-            ft.DataColumn(ft.Text("Price",size=20))
+            ft.DataColumn(ft.Text("Table Slot",size=20,color="white")),
+            ft.DataColumn(ft.Text("Description",size=20,color="white")),
+            ft.DataColumn(ft.Text("Quantity",size=20,color="white")),
+            ft.DataColumn(ft.Text("Price",size=20,color="white"))
 
         ],
         rows=[],
@@ -1269,13 +1276,14 @@ def main(page: ft.Page):
     Bill_title = ft.Container(
         ft.Row(
             [
-                ft.Text("Bill Transfer information")
+                ft.Text("Bill Transfer information",color="white",weight="bold")
             ],
             alignment=ft.MainAxisAlignment.CENTER
         ),
         width=1370,
         height=50,
-        border=ft.border.all(1,"grey"),
+        border=ft.border.all(1,"brown"),
+        bgcolor="brown"
         
     )
 
@@ -1327,7 +1335,7 @@ def main(page: ft.Page):
                         ft.Divider(color=None),
                         ft.Row(
                             [
-                                ft.Text("Total: ",size=20),
+                                ft.Text("Total: ",size=20,color="white"),
                                 total_payment
                             ]
                         ),
@@ -1338,9 +1346,10 @@ def main(page: ft.Page):
         ),
         width=680,
         height=400,
-        border=ft.border.all(1,"grey"),
+        border=ft.border.all(1,"brown"),
         margin=ft.margin.only(bottom=10),
-        padding=20
+        padding=20,
+        bgcolor="brown"
     )
     Bill_table_list = ft.Container(
         ft.Row(
@@ -1357,9 +1366,10 @@ def main(page: ft.Page):
         ),
         width=680,
         height=400,
-        border=ft.border.all(1,"grey"),
+        border=ft.border.all(1,"brown"),
         margin=ft.margin.only(bottom=10),
-        padding=50
+        padding=50,
+        bgcolor="brown"
     )
 
 
