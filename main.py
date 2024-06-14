@@ -39,8 +39,31 @@ def main(page: ft.Page):
                 TestImgcontainer.image_src = str(e.files[0].path)
                 print(e.files[0].path)
                 page.update()
+    def ViewProduct(e):
+        ViewProductList = """ SELECT name FROM producttb
+                              UNION
+                              SELECT name FROM productsb
+                            """
+        try:
+            mycursor.execute(ViewProductList)
+            for obj in mycursor.fetchall():
+
+
+                product.options.append(
+                    ft.dropdown.Option(str(obj[0])),
+                )
+            db.commit()
+        except Exception as error:
+            print(error)
+        page.update()
 
     def CategoriesCustomize(e):
+        
+        product.options.append(
+            ft.dropdown.Option(str(TitleIMG.value)),
+        )
+
+        
         if CategoriesSelection.value == "Drink & Coffee":
             SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
             Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
@@ -407,6 +430,7 @@ def main(page: ft.Page):
                 # PasswordField.value = password
                 ListItems(e)
                 Show(e)
+                ViewProduct(e)
             else:
                 CautionText.visible = True
                 print("Denied !!!")
@@ -705,35 +729,37 @@ def main(page: ft.Page):
 
         page.update()
     def PriceCategories(e):
-        if product.value == "Ca phe sua":
-            Price_summary.value = 25000 * int(Order_field.value)
-        elif product.value == "Bac xiu":
-            Price_summary.value = 30000 * int(Order_field.value)
-        elif product.value == "Ca phe den":
-            Price_summary.value = 20000 * int(Order_field.value)
-        elif product.value == "Ca phe muoi":
-            Price_summary.value = 30000 * int(Order_field.value)
-        elif product.value == "Nuoc chanh":
-            Price_summary.value = 25000 * int(Order_field.value)
-        elif product.value == "Nuoc cam":
-            Price_summary.value = 15000 * int(Order_field.value)
-        elif product.value == "Tra dao":
-            Price_summary.value = 15000 * int(Order_field.value)
+
+        SolvedPriceCommand = f""" SELECT price FROM producttb WHERE name = '{product.value}'
+                                UNION 
+                                SELECT price FROM productsb WHERE name = '{product.value}'
+                            """
+        
+
+        try:
+            mycursor.execute(SolvedPriceCommand)
+            for price in mycursor.fetchall():
+                Obj_price = price[0]
+            total = int(Obj_price)*int(Order_field.value)
+            Price_summary.value = total
+            db.commit()    
+        except Exception as error:
+            print(error)
+        
+        # if product.value == "Ca phe sua":
+        #     Price_summary.value = 25000 * int(Order_field.value)
+        
         page.update()
     
     
     
     product = ft.Dropdown(
+       
         label="Product",
         width=200,
         options=[
-            ft.dropdown.Option("Ca phe sua"),
-            ft.dropdown.Option("Bac xiu"),
-            ft.dropdown.Option("Ca phe den"),
-            ft.dropdown.Option("Ca phe muoi"),
-            ft.dropdown.Option("Nuoc chanh"),
-            ft.dropdown.Option("Nuoc cam"),
-            ft.dropdown.Option("Tra dao"),
+        
+            
         ],
         on_change=PriceCategories,
         # border_color="white",
@@ -983,6 +1009,7 @@ def main(page: ft.Page):
         page.update()
 
 
+    
     #Show off list of products and total payment of quantity
     def SetupBill(e):
         ClearBillList(e)
