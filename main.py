@@ -506,8 +506,28 @@ def main(page: ft.Page):
 
 
     #THIS IS FOR SETTINGS PAGE
-    ClearAllChangesButton = ft.ElevatedButton("clear Data",width=200,color="white",bgcolor="red")
+    #Text
+    avtName = ft.Text(color="grey",size=15)
+    avtPnb = ft.Text(color="grey",size=15)
+    
+
+    #Field
     PhonNBEdit = ft.TextField(width=400,color="black",border_color="black")
+    NameEdit = ft.TextField(width=300,border_color="black")
+    PassworđEit = ft.TextField(width=300,can_reveal_password=True,password=True,color="black",)
+    EmailAddress = ft.TextField(width=300,color="black",border_color="black")
+
+    #Button
+    EditChangeSettings = ft.IconButton(ft.icons.EDIT_OUTLINED,icon_color="grey")
+    ClearAllChangesButton = ft.ElevatedButton("clear Data",width=200,color="white",bgcolor="red")
+    SaveSettings = ft.ElevatedButton("Save all Changes")
+    ClearSettings = ft.ElevatedButton("Clear all changes")
+    Logout = ft.ElevatedButton("Log out",width=200,color="white",bgcolor="black",on_click=None)
+
+
+
+
+
     AVTrail= ft.Container(
         margin=ft.margin.only(top=20),
         image_src="images/AVT.png",
