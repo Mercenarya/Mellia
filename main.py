@@ -453,28 +453,89 @@ def main(page: ft.Page):
         except Exception as error:
             print(error)
         page.update()
+    
+    def Recovery(e):
+        QueryRecovery = "SELECT phonenb FROM Mellia_user WHERE id = 1"
+        UpdateNewChange = f"""UPDATE Mellia_user 
+                            SET username = '{str(UsernameFieldRecover.value)}', password = '{str(PasswordFieldRecover.value)}'
+                            WHERE id = 1"""
+        #NO USE 'AND' INTO SYNTAX WITH 'SET' 
+        try:
+            mycursor.execute(QueryRecovery)
+            for obj in mycursor.fetchall():
+                pnb = obj[0]
+
+            if PhoneRecover.value == pnb:
+                mycursor.execute(UpdateNewChange)
+                print("Complete !!!")
+                page.go("/Login")
+                db.commit()
+            else:
+                CautionTextRecover.visible = True
+
+        except Exception as error:
+            print(error)
+        page.update()
 
 
-
-
+    #THIS IS FOR LOGIN FORM
     Greeting = ft.Text("Welcome back, Thai Thu", size=20,color="white",text_align='center')
     CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
     UsernameField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
     PasswordField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
-    ForgotPWD = ft.TextButton(text="Forgot password ?",style=ft.ButtonStyle(color="white"))
+    ForgotPWD = ft.TextButton(text="Forgot password ?",style=ft.ButtonStyle(color="white"),on_click=lambda _:page.go("/Recover"))
     CopyrightBrand = ft.Text("Copyright by @mtranquoc77 Inc",size=10,color="white",text_align="center")
     rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
     LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication)
     Avatar = ft.Container(
-        image_src="images/AVT.png",
+        image_src=None,
         image_fit=ft.ImageFit.FILL,
         height=130,
         width=130,
         border_radius=100,
         border=ft.border.all(1,"white")
     )
+
+    #THIS IS FOR RECOVERY FORM 
+    UsernameFieldRecover = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
+    PasswordFieldRecover = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
+    PhoneRecover = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Phone's number",label_style=ft.TextStyle(color="white",))
+    ConfirmButton = ft.ElevatedButton(text="Confirm",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white", on_click=Recovery)
+    ReturnButton = ft.ElevatedButton(text="Back to Login",color="white",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="black",on_click= lambda _:page.go("/Login"))
+    CautionTextRecover = ft.Text("Wrong Phone number",color="red",visible=False,size=15)
+
+
+    #THIS IS FOR SETTINGS PAGE
+    ClearAllChangesButton = ft.ElevatedButton("clear Data",width=200,color="white",bgcolor="red")
+    PhonNBEdit = ft.TextField(width=400,color="black",border_color="black")
+    AVTrail= ft.Container(
+        margin=ft.margin.only(top=20),
+        image_src="images/AVT.png",
+        image_fit=ft.ImageFit.FILL,
+        height=70,
+        width=70,
+        bgcolor="grey",
+        border_radius=100,
+        border=ft.border.all(1,"black")
+    )
+
+
+    AvatarSettings = ft.Container(
+        image_src=None,
+        image_fit=ft.ImageFit.FILL,
+        height=100,
+        width=100,
+        bgcolor="grey",
+        border_radius=100,
+        border=ft.border.all(1,"black")
+    )
+    
+    
+    
+    
+    
     #SET UP LAYOUT
-    Screen_layout = ft.Container(
+    Screen_layout_Login = ft.Container(
             ft.Stack(
                 [
                     ft.Image(
@@ -559,6 +620,55 @@ def main(page: ft.Page):
 
 
 
+    Screen_layout_Recover = ft.Container(
+            ft.Stack(
+                [
+                    ft.Image(
+                        src="images/Cafeteria.png",
+                        fit=ft.ImageFit.FILL,
+                        width=2000,
+                        height=1000,
+                        expand= True,
+                        opacity=0.9
+                        
+                        
+                    ),
+                    ft.Container(
+                        ft.Container(
+                            ft.Column(
+                                [
+                                    ft.Text("Recovery",size=50,weight="bold"),
+                                    UsernameFieldRecover,
+                                    PasswordFieldRecover,
+                                    PhoneRecover,
+                                    CautionTextRecover,
+                                    ConfirmButton,
+                                    ReturnButton
+                                    
+                                ]
+                            ),
+                            width=500,
+                            height=600,
+                            margin=ft.margin.only(top=50),
+                            blur=ft.Blur(5,10, ft.BlurTileMode.CLAMP),
+                            alignment=ft.alignment.center,
+                            border_radius=20,
+                            border=ft.border.all(1,"white"),
+                            padding=ft.padding.only(top=70,left=50,right=50)
+                        ),
+                        alignment=ft.alignment.center
+                    )
+                ]
+            ),
+            margin=ft.margin.only(bottom=100),
+            
+        )
+    
+
+
+
+
+
 
 
     #Add new Order 
@@ -618,8 +728,9 @@ def main(page: ft.Page):
         min_width=100,
         min_extended_width=400,
         group_alignment=-0.9,
-        
+        leading=AVTrail,
         destinations=[
+
             ft.NavigationRailDestination(
                 icon_content=ft.Icon(ft.icons.MENU_BOOK),
                 label='Menu'
@@ -635,10 +746,6 @@ def main(page: ft.Page):
             ft.NavigationRailDestination(
                 icon_content=ft.Icon(ft.icons.DASHBOARD_CUSTOMIZE),
                 label='Customize'
-            ),
-            ft.NavigationRailDestination(
-                icon_content=ft.Icon(ft.icons.ACCOUNT_BALANCE),
-                label='Income'
             ),
             ft.NavigationRailDestination(
                 icon_content=ft.Icon(ft.icons.SETTINGS),
@@ -657,16 +764,10 @@ def main(page: ft.Page):
     #-----------------
     #SETTINGS
 
-    def change_theme(e):
-        if page.theme_mode == ft.ThemeMode.LIGHT:
-            ChangeThemeSwitch.label = "Dark"
-            page.theme_mode == ft.ThemeMode.DARK
-        else:
-            ChangeThemeSwitch.label = "Light"
-            page.theme_mode == ft.ThemeMode.LIGHT
-        #CHANGE THEME COLOR "DARK" TO "LIGHT"
-        page.update()
-    ChangeThemeSwitch = ft.Switch(label="Light", on_change=change_theme)
+
+
+
+
 
     #-----------------
     #Customize size for image and container
@@ -746,8 +847,6 @@ def main(page: ft.Page):
         except Exception as error:
             print(error)
         
-        # if product.value == "Ca phe sua":
-        #     Price_summary.value = 25000 * int(Order_field.value)
         
         page.update()
     
@@ -1576,14 +1675,55 @@ def main(page: ft.Page):
             CustomLayut
         ]
     )
+    page_5 = ft.Column(
+        controls=[
+            ft.Container(
+                
+                ft.Column(
+                    [
+                        ft.Container(
+                            ft.Row(
+                                [
+                                    AvatarSettings,
+                                ]
+                            ),
+                            height=150,
+                            width=1500,
+                            bgcolor="white",
+                            border = ft.border.all(1,"black"),
+                            padding= ft.padding.only(left=20)
+                        ),
+                        ft.Container(
+
+                            height=300,
+                            width=1500,
+                            bgcolor="white",
+                            border = ft.border.all(1,"black")
+                        ),
+                        ft.Container(
+
+                            height=200,
+                            width=1500,
+                            bgcolor="white",
+                            border = ft.border.all(1,"black")
+                        ),
+                        
+                    ]
+                ),
+                margin=ft.margin.only(left=20,bottom=20)
+            )
+        ],
+        scroll=ft.ScrollMode.ALWAYS
+    )
     #----------------------------------------------------------------------------------
     #PAGE STACK LIST 
     #Set up Page stack for route change
     page_stack = [
-        ft.Container(page_1,visible=True,bgcolor="#F5DEB3",height=1000,width=2000),
+        ft.Container(page_1,visible=True,height=1000,width=2000),
         ft.Container(page_2,visible=False),
         ft.Container(page_3,visible=False),
-        ft.Container(page_4,visible=False)
+        ft.Container(page_4,visible=False),
+        ft.Container(page_5,visible=False)
     ]
 
     #----------------------------------------------------------------------------------
@@ -1595,7 +1735,7 @@ def main(page: ft.Page):
                 "/Login",
                 [
                     
-                    Screen_layout
+                    Screen_layout_Login
                 ],
                 padding=0
                 # scroll=ft.ScrollMode.ALWAYS
@@ -1624,6 +1764,17 @@ def main(page: ft.Page):
                         ),
                     ],
                     bgcolor="#F5DEB3"
+                )
+            )
+        elif page.route == "/Recover":
+            page.views.append(
+                View(
+                    "/Recover",
+                    [
+                    
+                        Screen_layout_Recover
+                    ],
+                    padding=0
                 )
             )
         
