@@ -478,8 +478,27 @@ def main(page: ft.Page):
         page.update()
 
 
+
+    #Create Account Logs
+    UserDB = ''' SELECT username, phonenb 
+                FROM Mellia_user
+                WHERE id = 1
+            '''
+    mycursor.execute(UserDB)
+    for obj in mycursor.fetchall():
+        usr = obj[0]
+        pnb = obj[1]
+
+    
+
+
+
+
+
+
+
     #THIS IS FOR LOGIN FORM
-    Greeting = ft.Text("Welcome back, Thai Thu", size=20,color="white",text_align='center')
+    Greeting = ft.Text(f"Welcome back, {usr}", size=20,color="white",text_align='center')
     CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
     UsernameField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
     PasswordField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
@@ -507,9 +526,10 @@ def main(page: ft.Page):
 
     #THIS IS FOR SETTINGS PAGE
     #Text
-    avtName = ft.Text(color="grey",size=15)
-    avtPnb = ft.Text(color="grey",size=15)
-    
+    avtName = ft.Text(value=usr,weight="bold",color="black",size=20)
+    avtPnb = ft.Text(value=pnb,color="grey",size=15)
+    Role =  ft.Text("Service",color="grey",size=15)
+    #Require QRCode upload
 
     #Field
     PhonNBEdit = ft.TextField(width=400,color="black",border_color="black")
@@ -523,6 +543,7 @@ def main(page: ft.Page):
     SaveSettings = ft.ElevatedButton("Save all Changes")
     ClearSettings = ft.ElevatedButton("Clear all changes")
     Logout = ft.ElevatedButton("Log out",width=200,color="white",bgcolor="black",on_click=None)
+
 
 
 
@@ -1705,6 +1726,20 @@ def main(page: ft.Page):
                             ft.Row(
                                 [
                                     AvatarSettings,
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        avtName,
+                                                        avtPnb,
+                                                        Role
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(left=3,top=20)
+                                            )
+                                        ]
+                                    )
                                 ]
                             ),
                             height=150,
