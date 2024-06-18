@@ -478,19 +478,68 @@ def main(page: ft.Page):
         page.update()
 
 
+    def ClearallData(e):
+        ClearBillData = '''      
+            TRUNCATE TABLE Mellia_bill;      
+        '''
+        ClearOrderData = '''
+            TRUNCATE TABLE Mellia_orders
+        '''
+        Clearttb = '''
+            TRUNCATE TABLE producttb
+        '''
+        Cleartsb = '''
+            TRUNCATE TABLE productsb
+        '''
+        try:
+            mycursor.execute(ClearBillData)
+            mycursor.execute(ClearOrderData)
+            mycursor.execute(Clearttb)
+            mycursor.execute(Cleartsb)
+            print("Command Excuted !!!")
+            db.commit()
+        except Exception as error:
+            print(error)
+    
+        page.update()
+    def ProfilePageReveal(e):
+        ProfileShowUp.offset = ft.transform.Offset(2, 0)
+        ProfileEdit.offset = ft.transform.Offset(-1,0)
+
+        ProfileShowUp.update()
+        ProfileEdit.update()
+        # ProfileShowUp.visible = False
+        # ProfileEdit.visible = True
+        page.update()
+
+    def SaveProfileChanges(e):
+        ProfileShowUp.offset = ft.transform.Offset(0, 0)
+        ProfileEdit.offset = ft.transform.Offset(2,0)
+
+        ProfileShowUp.update()
+        ProfileEdit.update()
+        # ProfileShowUp.visible = True
+        # ProfileEdit.visible = False
+        page.update()
 
     #Create Account Logs
-    UserDB = ''' SELECT username, phonenb 
+    UserDB = ''' SELECT username, password, phonenb, role, email, firstname, lastname
                 FROM Mellia_user
                 WHERE id = 1
             '''
     mycursor.execute(UserDB)
     for obj in mycursor.fetchall():
         usr = obj[0]
-        pnb = obj[1]
+        pwd =  obj [1]
+        pnb = obj[2]
+        rl = obj[3]
+        email = obj[4]
+        fn = obj[5]
+        ln = obj[6]
 
     
-
+    #ANIMATION LOGIC
+    
 
 
 
@@ -505,7 +554,7 @@ def main(page: ft.Page):
     ForgotPWD = ft.TextButton(text="Forgot password ?",style=ft.ButtonStyle(color="white"),on_click=lambda _:page.go("/Recover"))
     CopyrightBrand = ft.Text("Copyright by @mtranquoc77 Inc",size=10,color="white",text_align="center")
     rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
-    LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication)
+    LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication,)
     Avatar = ft.Container(
         image_src=None,
         image_fit=ft.ImageFit.FILL,
@@ -527,24 +576,29 @@ def main(page: ft.Page):
     #THIS IS FOR SETTINGS PAGE
     #Text
     avtName = ft.Text(value=usr,weight="bold",color="black",size=20)
-    avtPnb = ft.Text(value=pnb,color="grey",size=15)
-    Role =  ft.Text("Service",color="grey",size=15)
+    avtPnb = ft.Text(value="+84"+pnb,color="grey",size=15)
+    Role =  ft.Text(value=rl,color="grey",size=15)
     #Require QRCode upload
 
     #Field
-    PhonNBEdit = ft.TextField(width=400,color="black",border_color="black")
-    NameEdit = ft.TextField(width=300,border_color="black")
-    PassworđEit = ft.TextField(width=300,can_reveal_password=True,password=True,color="black",)
-    EmailAddress = ft.TextField(width=300,color="black",border_color="black")
+    RoleEdit = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    PhonNBEdit = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    NameEdit = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    PasswordEdit = ft.TextField(width=200,can_reveal_password=True,password=True,color="white",border_color="grey",bgcolor="grey")
+    EmailAddress = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    FirstnameEdit = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    LastnameEdit = ft.TextField(width=200,color="white",border_color="grey",bgcolor="grey")
+    
+
 
     #Button
+    EditAVT = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",)
+    EditProfile = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",on_click=ProfilePageReveal)
     EditChangeSettings = ft.IconButton(ft.icons.EDIT_OUTLINED,icon_color="grey")
-    ClearAllChangesButton = ft.ElevatedButton("clear Data",width=200,color="white",bgcolor="red")
-    SaveSettings = ft.ElevatedButton("Save all Changes")
+    ClearAllChangesButton = ft.IconButton(ft.icons.DELETE,icon_color="red",icon_size=30,on_click=ClearallData)
+    SaveProfile = ft.IconButton(ft.icons.SAVE,icon_color="blue",icon_size=30,on_click=SaveProfileChanges)
     ClearSettings = ft.ElevatedButton("Clear all changes")
-    Logout = ft.ElevatedButton("Log out",width=200,color="white",bgcolor="black",on_click=None)
-
-
+    Logout = ft.IconButton(ft.icons.LOGOUT,icon_color="black",icon_size=30,on_click= lambda _:page.go("/Login"))
 
 
 
@@ -562,7 +616,7 @@ def main(page: ft.Page):
 
 
     AvatarSettings = ft.Container(
-        image_src=None,
+        image_src="images/AVT.png",
         image_fit=ft.ImageFit.FILL,
         height=100,
         width=100,
@@ -1600,6 +1654,379 @@ def main(page: ft.Page):
 
 
     #----------------------------------------------------------------------------------
+    ProfileEdit =  ft.Container(
+                
+        ft.Column(
+            controls=[
+                ft.Container(
+                    ft.Row(
+                        [
+                            AvatarSettings,
+                            ft.Column(
+                                [
+                                    ft.Container(
+                                        ft.Column(
+                                            [
+                                                avtName,
+                                                avtPnb,
+                                                Role
+                                            ]
+                                        ),
+                                        width=500,
+                                        margin=ft.margin.only(left=3,top=20)
+                                    )
+                                ]
+                            ),
+                            ft.Container(
+                                EditAVT,
+                                padding=ft.padding.only(bottom=100,left=600,top=20)
+                            )
+                        ]
+                    ),
+                    height=150,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding= ft.padding.only(left=20)
+                ),
+                #Line extra
+                ft.Container(
+
+                    ft.Column(
+                        [
+                            
+                            ft.Row(
+                                [
+                                    ft.Container(
+                                        
+                                        ft.Text("Personal information",size=30,weight="bold",color="black"),
+                                        margin=ft.margin.only(right=930)
+                                        
+                                    ),
+                                    SaveProfile
+                                ]
+                            ),
+                            ft.Row(
+                                [
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Username",weight="bold",size=20,color="grey"),
+                                                        NameEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("password",weight="bold",size=20,color="grey"),
+                                                        PasswordEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10)
+                                            )
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Statement",weight="bold",size=20,color="grey"),
+                                                        RoleEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=100)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Gmail",weight="bold",size=20,color="grey"),
+                                                        EmailAddress
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=100)
+                                            )
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("First name",weight="bold",size=20,color="grey"),
+                                                        FirstnameEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=100)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Last name",weight="bold",size=20,color="grey"),
+                                                        LastnameEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=100)
+                                            )
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Phone",weight="bold",size=20,color="grey"),
+                                                        PhonNBEdit
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=140,left=100)
+                                            )
+                                           
+                                        ]
+                                    )
+                                ]
+                            )
+                        ]
+                    ),
+                    
+                    padding=ft.padding.only(left=20,top=20),
+                    height=350,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey")
+                ),
+                ft.Container(
+                    ft.Row(
+                        [
+                            ft.Text("Delete all Data",color="grey",size=20),
+                            ft.Container(
+                                ClearAllChangesButton,
+                                margin=ft.margin.only(left=1100)
+                            ),
+                        ]
+                    ),
+                    height=100,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding=ft.padding.only(left=20,top=3)
+                ),
+                ft.Container(
+                    ft.Row(
+                        [
+                            ft.Text("Log out",color="grey",size=20),
+                            ft.Container(
+                                Logout,
+                                margin=ft.margin.only(left=1165)
+                            ),
+                        ]
+                    ),
+                    height=100,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding=ft.padding.only(left=20,top=3)
+                ),
+                
+            ]
+        ),
+        margin=ft.margin.only(left=20,bottom=20),
+        visible=True,
+        offset=ft.transform.Offset(2, 0),
+        animate_offset=ft.animation.Animation(1000),
+    )
+    ProfileShowUp =ft.Container(
+                
+        ft.Column(
+            controls=[
+                ft.Container(
+                    ft.Row(
+                        [
+                            AvatarSettings,
+                            ft.Column(
+                                [
+                                    ft.Container(
+                                        ft.Column(
+                                            [
+                                                avtName,
+                                                avtPnb,
+                                                Role
+                                            ]
+                                        ),
+                                        width=500,
+                                        margin=ft.margin.only(left=3,top=20)
+                                    )
+                                ]
+                            ),
+                            ft.Container(
+                                EditAVT,
+
+                                
+                                padding=ft.padding.only(bottom=100,left=600,top=20)
+                            )
+                        ]
+                    ),
+                    height=150,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding= ft.padding.only(left=20)
+                ),
+                #Line extra
+                ft.Container(
+
+                    ft.Column(
+                        [
+                            
+                            ft.Row(
+                                [
+                                    ft.Container(
+                                        
+                                        ft.Text("Personal information",size=30,weight="bold",color="black"),
+                                        margin=ft.margin.only(right=910)
+                                        
+                                    ),
+                                    EditProfile
+                                ]
+                            ),
+                            ft.Row(
+                                [
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Username",weight="bold",size=20,color="grey"),
+                                                        ft.Text(usr,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Password",weight="bold",size=20,color="grey"),
+                                                        ft.Text(pwd,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10)
+                                            ),
+                                            
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Statement",weight="bold",size=20,color="grey"),
+                                                        ft.Text(rl,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=200)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Gmail",weight="bold",size=20,color="grey"),
+                                                        ft.Text(email,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=200)
+                                            )
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("First name",weight="bold",size=20,color="grey"),
+                                                        ft.Text(fn,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=200)
+                                            ),
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Last name",weight="bold",size=20,color="grey"),
+                                                        ft.Text(ln,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=10,left=200)
+                                            )
+                                        ]
+                                    ),
+                                    ft.Column(
+                                        [
+                                            ft.Container(
+                                                ft.Column(
+                                                    [
+                                                        ft.Text("Phone",weight="bold",size=20,color="grey"),
+                                                        ft.Text("(+84) "+pnb,size=20,color="grey")
+                                                    ]
+                                                ),
+                                                margin=ft.margin.only(top=10,bottom=115,left=200)
+                                            )
+                                            
+                                        ]
+                                    )
+                                ]
+                            )
+                        ]
+                    ),
+                    
+                    padding=ft.padding.only(left=20,top=20),
+                    height=300,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey")
+                ),
+                ft.Container(
+                    ft.Row(
+                        [
+                            ft.Text("Delete all Data",color="grey",size=20),
+                            ft.Container(
+                                ClearAllChangesButton,
+                                margin=ft.margin.only(left=1100)
+                            ),
+                        ]
+                    ),
+                    height=100,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding=ft.padding.only(left=20,top=3)
+                ),
+                ft.Container(
+                    ft.Row(
+                        [
+                            ft.Text("Log out",color="grey",size=20),
+                            ft.Container(
+                                Logout,
+                                margin=ft.margin.only(left=1165)
+                            ),
+                        ]
+                    ),
+                    height=100,
+                    width=1500,
+                    bgcolor="white",
+                    border = ft.border.all(1,"grey"),
+                    padding=ft.padding.only(left=20,top=3)
+                ),
+                
+            ]
+        ),
+        margin=ft.margin.only(left=20,bottom=20),
+        visible=True,
+        offset=ft.transform.Offset(0, 0),
+        animate_offset=ft.animation.Animation(1000),
+    )
 
     #PAGE SET UP
     #----------------------------------------------------------------------------------
@@ -1718,54 +2145,11 @@ def main(page: ft.Page):
     )
     page_5 = ft.Column(
         controls=[
-            ft.Container(
-                
-                ft.Column(
-                    [
-                        ft.Container(
-                            ft.Row(
-                                [
-                                    AvatarSettings,
-                                    ft.Column(
-                                        [
-                                            ft.Container(
-                                                ft.Column(
-                                                    [
-                                                        avtName,
-                                                        avtPnb,
-                                                        Role
-                                                    ]
-                                                ),
-                                                margin=ft.margin.only(left=3,top=20)
-                                            )
-                                        ]
-                                    )
-                                ]
-                            ),
-                            height=150,
-                            width=1500,
-                            bgcolor="white",
-                            border = ft.border.all(1,"black"),
-                            padding= ft.padding.only(left=20)
-                        ),
-                        ft.Container(
-
-                            height=300,
-                            width=1500,
-                            bgcolor="white",
-                            border = ft.border.all(1,"black")
-                        ),
-                        ft.Container(
-
-                            height=200,
-                            width=1500,
-                            bgcolor="white",
-                            border = ft.border.all(1,"black")
-                        ),
-                        
-                    ]
-                ),
-                margin=ft.margin.only(left=20,bottom=20)
+            ft.Row(
+                [
+                    ProfileShowUp,
+                    ProfileEdit
+                ]
             )
         ],
         scroll=ft.ScrollMode.ALWAYS
