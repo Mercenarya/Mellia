@@ -513,6 +513,8 @@ def main(page: ft.Page):
         page.update()
 
     def SaveProfileChanges(e):
+        SaveSettingsChanged(e)
+
         ProfileShowUp.offset = ft.transform.Offset(0, 0)
         ProfileEdit.offset = ft.transform.Offset(2,0)
 
@@ -520,6 +522,28 @@ def main(page: ft.Page):
         ProfileEdit.update()
         # ProfileShowUp.visible = True
         # ProfileEdit.visible = False
+        page.update()
+
+
+
+    def SaveSettingsChanged(e):
+        Record = (str(NameEdit.value), str(PasswordEdit.value), 
+                  str(PhonNBEdit.value), str(RoleEdit.value), 
+                  str(EmailAddress.value), str(FirstnameEdit.value), str(LastnameEdit.value))
+
+
+        ChangesInserted = '''
+            UPDATE Mellia_user SET username = %s, password = %s,
+            phonenb = %s, role = %s, email = %s,
+            firstname = %s, lastname = %s WHERE id = 1
+        '''
+        try:
+            mycursor.execute(ChangesInserted,Record)
+            print("Changes Reveal")
+            db.commit()
+        except Exception as error:
+            print(error)
+
         page.update()
 
     #Create Account Logs
