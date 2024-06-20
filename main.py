@@ -518,18 +518,42 @@ def main(page: ft.Page):
         ProfileShowUp.offset = ft.transform.Offset(0, 0)
         ProfileEdit.offset = ft.transform.Offset(2,0)
 
-        ProfileShowUp.update()
-        ProfileEdit.update()
+
+        try:
+            UserDB = ''' SELECT username, password, phonenb, role, email, firstname, lastname
+                FROM Mellia_user
+                WHERE id = 1
+            '''
+            mycursor.execute(UserDB)
+            for obj in mycursor.fetchall():
+                usrd = obj[0]
+                pnb = obj[2]
+                rl = obj[3]
+               
+                avtName.value = usrd
+                avtPnb.value = pnb
+                Role.value = rl
+        except Exception as error:
+            print(error)
         # ProfileShowUp.visible = True
         # ProfileEdit.visible = False
+        ProfileShowUp.update()
+        ProfileEdit.update()
         page.update()
 
 
 
     def SaveSettingsChanged(e):
+        UpdatedChanges = ''' SELECT 
+        username, password, phonenb, role, email, firstname, lastname 
+        FROM Mellia_user
+        WHERE id =1'''
+
+
         Record = (str(NameEdit.value), str(PasswordEdit.value), 
                   str(PhonNBEdit.value), str(RoleEdit.value), 
-                  str(EmailAddress.value), str(FirstnameEdit.value), str(LastnameEdit.value))
+                  str(EmailAddress.value), str(FirstnameEdit.value), 
+                  str(LastnameEdit.value))
 
 
         ChangesInserted = '''
@@ -538,9 +562,43 @@ def main(page: ft.Page):
             firstname = %s, lastname = %s WHERE id = 1
         '''
         try:
-            mycursor.execute(ChangesInserted,Record)
-            print("Changes Reveal")
-            db.commit()
+            if NameEdit.value == "" or PasswordEdit.value == "" or PhonNBEdit.value == "" or RoleEdit.value == "" :
+                if EmailAddress.value == "" or FirstnameEdit.value == "" or LastnameEdit.value == "":
+                    ProfileShowUp.offset = ft.transform.Offset(0, 0)
+                    ProfileEdit.offset = ft.transform.Offset(2,0)
+                    print("No changes detected in field form")
+            else:
+                mycursor.execute(ChangesInserted,Record)
+                mycursor.execute(UpdatedChanges)
+                for obj in mycursor.fetchall():
+                    usrd = obj[0]
+                    pwd = obj[1]
+                    phn = obj[2]
+                    rln = obj[3]
+                    eml = obj[4]
+                    fnl = obj[5]
+                    lnl = obj[6]
+
+                Usrname.value = usrd
+                Psword.value = pwd
+                Phoneline.value = phn
+                roleLine.value = rln
+                EmailLine.value = eml
+                FnLine.value = fnl
+                lnLine.value = lnl
+
+                #Avatar Customize
+                
+                Greeting.value = f"Welcome back, {usrd}"
+
+                ProfileShowUp.offset = ft.transform.Offset(0, 0)
+                ProfileEdit.offset = ft.transform.Offset(2,0)
+                ProfileShowUp.update()
+                ProfileEdit.update()
+                print("Changes Reveal")
+                db.commit()
+
+                
         except Exception as error:
             print(error)
 
@@ -563,7 +621,9 @@ def main(page: ft.Page):
 
     
     #ANIMATION LOGIC
-    
+    def LogoutLogs(e):
+        page.go("/Login")
+        page.update()
 
 
 
@@ -602,6 +662,15 @@ def main(page: ft.Page):
     avtName = ft.Text(value=usr,weight="bold",color="black",size=20)
     avtPnb = ft.Text(value="+84"+pnb,color="grey",size=15)
     Role =  ft.Text(value=rl,color="grey",size=15)
+
+    Usrname = ft.Text(usr,size=20,color="grey")
+    Psword = ft.Text(pwd,size=20,color="grey")
+    roleLine = ft.Text(rl,size=20,color="grey")
+    EmailLine = ft.Text(email,size=20,color="grey")
+    FnLine = ft.Text(fn,size=20,color="grey")
+    lnLine = ft.Text(ln,size=20,color="grey")
+    Phoneline = ft.Text("(+84) "+pnb,size=20,color="grey")
+
     #Require QRCode upload
 
     #Field
@@ -618,11 +687,9 @@ def main(page: ft.Page):
     #Button
     EditAVT = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",)
     EditProfile = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",on_click=ProfilePageReveal)
-    EditChangeSettings = ft.IconButton(ft.icons.EDIT_OUTLINED,icon_color="grey")
     ClearAllChangesButton = ft.IconButton(ft.icons.DELETE,icon_color="red",icon_size=30,on_click=ClearallData)
-    SaveProfile = ft.IconButton(ft.icons.SAVE,icon_color="blue",icon_size=30,on_click=SaveProfileChanges)
-    ClearSettings = ft.ElevatedButton("Clear all changes")
-    Logout = ft.IconButton(ft.icons.LOGOUT,icon_color="black",icon_size=30,on_click= lambda _:page.go("/Login"))
+    SaveProfile = ft.IconButton(ft.icons.SAVE,icon_color="blue",icon_size=30,on_click=SaveProfileChanges)    
+    Logout = ft.IconButton(ft.icons.LOGOUT,icon_color="black",icon_size=30,on_click= LogoutLogs)
 
 
 
@@ -1925,7 +1992,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Username",weight="bold",size=20,color="grey"),
-                                                        ft.Text(usr,size=20,color="grey")
+                                                        Usrname
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10)
@@ -1934,7 +2001,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Password",weight="bold",size=20,color="grey"),
-                                                        ft.Text(pwd,size=20,color="grey")
+                                                        Psword
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10)
@@ -1948,7 +2015,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Statement",weight="bold",size=20,color="grey"),
-                                                        ft.Text(rl,size=20,color="grey")
+                                                        roleLine
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10,left=200)
@@ -1957,7 +2024,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Gmail",weight="bold",size=20,color="grey"),
-                                                        ft.Text(email,size=20,color="grey")
+                                                        EmailLine
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10,left=200)
@@ -1970,7 +2037,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("First name",weight="bold",size=20,color="grey"),
-                                                        ft.Text(fn,size=20,color="grey")
+                                                        FnLine
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10,left=200)
@@ -1979,7 +2046,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Last name",weight="bold",size=20,color="grey"),
-                                                        ft.Text(ln,size=20,color="grey")
+                                                        lnLine
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=10,left=200)
@@ -1992,7 +2059,7 @@ def main(page: ft.Page):
                                                 ft.Column(
                                                     [
                                                         ft.Text("Phone",weight="bold",size=20,color="grey"),
-                                                        ft.Text("(+84) "+pnb,size=20,color="grey")
+                                                        Phoneline
                                                     ]
                                                 ),
                                                 margin=ft.margin.only(top=10,bottom=115,left=200)
