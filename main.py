@@ -241,8 +241,7 @@ def main(page: ft.Page):
                                                         ],
                                                         width=150
                                                     ),
-                                                    
-                                                    AddIconButton
+                                                  
                                                     
                                                 ]
                                             ),
@@ -301,7 +300,7 @@ def main(page: ft.Page):
                                                         width=150
                                                     ),
                                                     
-                                                    AddIconButton
+                                                   
                                                     
                                                 ]
                                             ),
@@ -328,7 +327,6 @@ def main(page: ft.Page):
                 )
             db.commit()
         page.update()
-    AddIconButton = ft.IconButton(icon=ft.icons.ARROW_RIGHT,bgcolor="#e1f6f4",icon_color="#6F4E37",on_click=None,icon_size=40)
     ButtonLayout = ft.Container(
         ft.Column(
             [
@@ -344,7 +342,7 @@ def main(page: ft.Page):
                             width=150
                         ),
                         
-                        AddIconButton
+                       
                         
                     ]
                 ),
@@ -425,6 +423,9 @@ def main(page: ft.Page):
                 print("Login succcessfully")
                 CautionText.visible = False
                 page.go("/Home")
+                List_product.controls.clear()
+                List_product_2.controls.clear()
+                
                 ConfirmednandSaveLogs(e)
                 # UsernameField.value = user
                 # PasswordField.value = password
@@ -622,13 +623,97 @@ def main(page: ft.Page):
     
     #ANIMATION LOGIC
     def LogoutLogs(e):
+        
         page.go("/Login")
+        
         page.update()
 
 
+    
+    def SearchResults(e):
+        try:
+            ResultQueriesCommand = f"""SELECT name, price, content, image FROM producttb WHERE name = '{SearchTool.value}'
+                                    UNION 
+                                    SELECT name, price, content, image FROM productsb WHERE name = '{SearchTool.value}'
+                                     """,
+            mycursor.execute(*ResultQueriesCommand)
+            for obj in mycursor.fetchall():
+                name = obj[0]
+                price = obj[1]
+                content = obj[2]
+                image = obj[3]
+            
+            ResultList.controls.clear()
+            QueriesImg.image_src = str(image)
+            QueriesContent.value = content
+            QueriesName.value = name
+            QueriesPrice.value = price
+            ResultList.controls.append(ResultLayout)
+            ResultNotFound.visible = False
+            db.commit()
+        except Exception as error:
+            print(error)
+            ResultNotFound.visible = True
+        page.update()
 
 
+    
+    ResultNotFound = ft.Text("Result not found",size=40,weight="bold",color="black",visible=False)
 
+    ResultList = ft.Column(
+        [
+
+        ],
+        scroll=True
+    )
+
+    QueriesImg = ft.Container(
+        image_src=None,
+        bgcolor="white",
+        width=500,
+        height=350,
+        border_radius=ft.border_radius.only(top_left=20,bottom_left=20)
+
+    )
+    QueriesName = ft.Text(color="white",weight="bold",size=50)
+    QueriesPrice = ft.Text(color="white",weight="bold",size=50)
+    QueriesContent = ft.Text(color="white",size=30)
+
+    ResultLayout = ft.Container(
+        ft.Row(
+            [
+                QueriesImg,
+                
+                ft.Container(
+                        ft.Column(
+                            [
+                                QueriesName,
+                                QueriesContent,
+                                ft.Row(
+                                    [
+                                        QueriesPrice,
+                                        ft.Text("$",color="white",weight="bold",size=50)
+                                    ]
+                                ),
+                                
+                                
+                            ]
+                    ),
+                    margin=ft.margin.only(top=30,left=20)
+                )
+            ]
+        ),
+
+        width=1000,
+        height=350,
+        bgcolor="brown",
+        shadow = ft.BoxShadow(
+            blur_radius = 5,
+            color = ft.colors.BLACK,
+            blur_style = ft.ShadowBlurStyle.OUTER,
+        ),
+        border_radius=20
+    )
 
     #THIS IS FOR LOGIN FORM
     Greeting = ft.Text(f"Welcome back, {usr}", size=20,color="white",text_align='center')
@@ -859,13 +944,15 @@ def main(page: ft.Page):
 
     #Add new Order 
 
-    SearchTool = ft.SearchBar(
-        view_elevation=4,
-        divider_color=ft.colors.AMBER,
-        bar_hint_text="Search",
-        view_hint_text="Choose a product from the suggestions...",
-        bar_bgcolor="white",
-        width=1000
+    SearchTool = ft.TextField(
+        hint_text="Search...",
+        filled=True,
+        width=1000,
+        border_radius=30,
+        border_color="white",
+        bgcolor="white",
+        color="black",
+        prefix_icon=ft.icons.SEARCH,on_submit=SearchResults
         
     )
 
@@ -2135,6 +2222,16 @@ def main(page: ft.Page):
                 ),
                 margin=ft.margin.only(top=20)
                 
+            ),
+            ft.Container(
+                ft.Row(
+                    [
+                        ResultList,
+                        ResultNotFound
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER
+                ),
+                margin=ft.margin.only(top=10)
             ),
             ft.Row(
                 [
