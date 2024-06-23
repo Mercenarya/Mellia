@@ -3,6 +3,8 @@ import mysql.connector
 import time
 from flet import View
 import base64
+import PIL 
+from PIL import Image
 
 
 
@@ -724,14 +726,7 @@ def main(page: ft.Page):
     CopyrightBrand = ft.Text("Copyright by @mtranquoc77 Inc",size=10,color="white",text_align="center")
     rememberUSR = ft.Checkbox(label="Remember me",label_style=ft.TextStyle(color="white"),fill_color="white",check_color="black",on_change=None,tristate=False)
     LoginButton = ft.ElevatedButton(text="Login",color="black",width=300,style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=0)),bgcolor="white",on_click=Authentication,)
-    Avatar = ft.Container(
-        image_src=None,
-        image_fit=ft.ImageFit.FILL,
-        height=130,
-        width=130,
-        border_radius=100,
-        border=ft.border.all(1,"white")
-    )
+    
 
     #THIS IS FOR RECOVERY FORM 
     UsernameFieldRecover = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
@@ -770,18 +765,68 @@ def main(page: ft.Page):
 
 
     #Button
-    EditAVT = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",)
+    EditAVT = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",on_click=ProfilePageReveal)
     EditProfile = ft.TextButton(icon=ft.icons.EDIT,text="Edit",icon_color="grey",on_click=ProfilePageReveal)
     ClearAllChangesButton = ft.IconButton(ft.icons.DELETE,icon_color="red",icon_size=30,on_click=ClearallData)
     SaveProfile = ft.IconButton(ft.icons.SAVE,icon_color="blue",icon_size=30,on_click=SaveProfileChanges)    
     Logout = ft.IconButton(ft.icons.LOGOUT,icon_color="black",icon_size=30,on_click= LogoutLogs)
 
 
+    
+    
+    #UPLOAD NEW AVT FROM DESKTOP
+    def Avtar_upload_IMG(e: ft.FilePickerResultEvent):
+        if e.files and len(e.files):
+            with open(e.files[0].path, 'rb') as r:
+                AvatarSettings.image_src_base64 = base64.b64encode(r.read()).decode('utf-8')
+                AVTrail.image_src = str(e.files[0].path)
+                Avatar.image_src = str(e.files[0].path)
+                print(e.files[0].path)
+                saveAVT.visible = True
+                AVTupload.visible = False
+            
+        
+        page.update()
+ 
 
+
+    #SAVE IMAGE SRC 
+    def SaveAVTimage(e):
+        itemImg = [Avatar.image_src]
+        SaveQueries = '''
+                UPDATE Mellia_user SET avt = %s WHERE id = 1
+            '''
+        try:
+            mycursor.execute(SaveQueries,itemImg)
+            print("Saved image")
+            db.commit()
+        except Exception as error:
+            print(error)
+
+        page.update()
+
+    
+    AVTdisplay_queries = '''
+        SELECT avt FROM Mellia_user WHERE id = 1
+    '''
+    try:
+        mycursor.execute(AVTdisplay_queries)
+        for obj in mycursor.fetchall():
+            photo = obj[0]
+            
+        db.commit()
+    except Exception as error:
+        print(error)
+
+    AVT_picked = ft.FilePicker(on_result=Avtar_upload_IMG)
+    page.overlay.append(AVT_picked)
+    AVTupload = ft.IconButton(icon=ft.icons.UPLOAD,icon_color="black",bgcolor="white",on_click= lambda _:AVT_picked.pick_files(
+                            allow_multiple=False, allowed_extensions=['png']),icon_size=40,visible=True)
+    saveAVT = ft.IconButton(icon=ft.icons.SAVE,icon_color="blue",icon_size=30,visible=False,on_click=SaveAVTimage)
 
     AVTrail= ft.Container(
         margin=ft.margin.only(top=20),
-        image_src="images/AVT.png",
+        image_src=str(photo),
         image_fit=ft.ImageFit.FILL,
         height=70,
         width=70,
@@ -792,7 +837,7 @@ def main(page: ft.Page):
 
 
     AvatarSettings = ft.Container(
-        image_src="images/AVT.png",
+        image_src=str(photo),
         image_fit=ft.ImageFit.FILL,
         height=100,
         width=100,
@@ -801,7 +846,14 @@ def main(page: ft.Page):
         border=ft.border.all(1,"black")
     )
     
-    
+    Avatar = ft.Container(
+        image_src=str(photo),
+        # image_fit=ft.ImageFit.FILL,
+        height=130,
+        width=130,
+        border_radius=100,
+        border=ft.border.all(1,"white")
+    )
     
     
     
@@ -1533,12 +1585,7 @@ def main(page: ft.Page):
 
 
 
-    QRcode = ft.Image(
-        src="images\Vcb.png",
-        width=220,
-        height=220,
-        border_radius=20
-    )
+   
 
     PaymentLayout = ft.Container(
 
@@ -1638,12 +1685,7 @@ def main(page: ft.Page):
                         Bank
                     ]
                 ),
-                ft.Column(
-                    controls=[
-                        QRcode,
-
-                    ]
-                ),
+                
                 
             
             ],
@@ -1856,8 +1898,13 @@ def main(page: ft.Page):
                                 ]
                             ),
                             ft.Container(
-                                EditAVT,
-                                padding=ft.padding.only(bottom=100,left=600,top=20)
+                                ft.Column(
+                                    [
+                                        AVTupload,
+                                        saveAVT,
+                                    ]
+                                ),
+                                padding=ft.padding.only(bottom=100,left=620,top=20)
                             )
                         ]
                     ),
@@ -2017,7 +2064,7 @@ def main(page: ft.Page):
         offset=ft.transform.Offset(2, 0),
         animate_offset=ft.animation.Animation(1000),
     )
-    ProfileShowUp =ft.Container(
+    ProfileShowUp = ft.Container(
                 
         ft.Column(
             controls=[
@@ -2042,8 +2089,6 @@ def main(page: ft.Page):
                             ),
                             ft.Container(
                                 EditAVT,
-
-                                
                                 padding=ft.padding.only(bottom=100,left=600,top=20)
                             )
                         ]
