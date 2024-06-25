@@ -3,10 +3,32 @@ import mysql.connector
 import time
 from flet import View
 import base64
-import PIL 
-from PIL import Image
+import os
+import shutil
 
 
+
+Userdir = "User"
+Productdir = "Products"
+MediaDir = "C:\Mellia"
+
+AccountSettings = os.path.join(MediaDir, Userdir)
+ItemSettings = os.path.join(MediaDir,Productdir)
+
+AccountDir = "C:/Mellia/User"
+
+try:
+    if os.path.exists:
+        print("Valid Folder !!!")
+    else:
+        os.mkdir(MediaDir)
+        print("Folder created !!!")
+        os.mkdir(AccountSettings)
+        print("User created !!!")
+        os.mkdir(ItemSettings)
+        print("Item created")
+except Exception as error:
+    print(error)
 
 db = mysql.connector.connect(
     host="localhost",
@@ -778,10 +800,38 @@ def main(page: ft.Page):
     def Avtar_upload_IMG(e: ft.FilePickerResultEvent):
         if e.files and len(e.files):
             with open(e.files[0].path, 'rb') as r:
+
                 AvatarSettings.image_src_base64 = base64.b64encode(r.read()).decode('utf-8')
+                AvatarSettings.image_src = str(e.files[0].path)       
                 AVTrail.image_src = str(e.files[0].path)
                 Avatar.image_src = str(e.files[0].path)
                 print(e.files[0].path)
+                try:
+                    src_path = AvatarSettings.image_src
+                    destination_path = AccountDir
+
+                    file_name = os.path.basename(src_path)
+
+                    destination = os.path.join(destination_path,file_name)
+                    try:
+                        shutil.copy(src_path, destination)
+                        print("Photo Replaced")
+                        AvatarSettings.image_src = str(destination)
+                        print("Avatar Directory chenged")
+                    except Exception as error:
+                        print(error)
+                    
+
+                    print(destination)
+                    
+
+
+                except Exception as error:
+                    print(error)
+                
+
+
+                
                 saveAVT.visible = True
                 AVTupload.visible = False
             
@@ -792,7 +842,7 @@ def main(page: ft.Page):
 
     #SAVE IMAGE SRC 
     def SaveAVTimage(e):
-        itemImg = [Avatar.image_src]
+        itemImg = [AvatarSettings.image_src]
         SaveQueries = '''
                 UPDATE Mellia_user SET avt = %s WHERE id = 1
             '''
@@ -848,7 +898,7 @@ def main(page: ft.Page):
     
     Avatar = ft.Container(
         image_src=str(photo),
-        # image_fit=ft.ImageFit.FILL,
+        image_fit=ft.ImageFit.FILL,
         height=130,
         width=130,
         border_radius=100,
