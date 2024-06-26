@@ -1,6 +1,5 @@
 import flet as ft
 import sqlite3
-import time
 from flet import View
 import base64
 import os
@@ -880,6 +879,9 @@ def main(page: ft.Page):
 
     #SAVE IMAGE SRC 
     def SaveAVTimage(e):
+        ImageUpdate = '''SELECT avt FROM Mellia_user WHERE id = 1'''
+
+
         itemImg = [AvatarSettings.image_src]
         SaveQueries = '''
                 UPDATE Mellia_user SET avt = ? WHERE id = 1
@@ -887,10 +889,22 @@ def main(page: ft.Page):
         try:
             mycursor.execute(SaveQueries,itemImg)
             print("Saved image")
+            
             db.commit()
         except Exception as error:
             print(error)
-
+            
+        
+        ProfileShowUp.offset = ft.transform.Offset(0, 0)
+        ProfileEdit.offset = ft.transform.Offset(2,0)
+        AVTupload.visible = True
+        saveAVT.visible = False
+        mycursor.execute(ImageUpdate)
+        for img in mycursor.fetchall():
+            AvatarShowup.image_src = str(img[0])
+        ProfileShowUp.update()
+        ProfileEdit.update()
+        db.commit()
         page.update()
 
     
@@ -925,6 +939,15 @@ def main(page: ft.Page):
 
 
     AvatarSettings = ft.Container(
+        image_src=str(photo),
+        image_fit=ft.ImageFit.FILL,
+        height=100,
+        width=100,
+        bgcolor="grey",
+        border_radius=100,
+        border=ft.border.all(1,"black")
+    )
+    AvatarShowup = ft.Container(
         image_src=str(photo),
         image_fit=ft.ImageFit.FILL,
         height=100,
@@ -1221,10 +1244,7 @@ def main(page: ft.Page):
     )
     #-----------------
     #Set up daytime 
-    Time = ft.Text(size=15)
-    settimetoday = time.strftime("%d%m%Y")
-    Time.value = settimetoday
-    
+   
     #-----------------------------------------------------------------------------------
     
     
@@ -2159,7 +2179,7 @@ def main(page: ft.Page):
                 ft.Container(
                     ft.Row(
                         [
-                            AvatarSettings,
+                            AvatarShowup,
                             ft.Column(
                                 [
                                     ft.Container(
