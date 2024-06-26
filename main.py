@@ -1,5 +1,5 @@
 import flet as ft
-import mysql.connector
+import sqlite3
 import time
 from flet import View
 import base64
@@ -16,6 +16,7 @@ AccountSettings = os.path.join(MediaDir, Userdir)
 ItemSettings = os.path.join(MediaDir,Productdir)
 
 AccountDir = "C:/Mellia/User"
+ItemDir = "C:/Mellia/Products"
 
 try:
     if os.path.exists:
@@ -30,12 +31,7 @@ try:
 except Exception as error:
     print(error)
 
-db = mysql.connector.connect(
-    host="localhost",
-    username = "root",
-    password = "Minh_17102004",
-    database = "mellia"
-)
+db = sqlite3.connect("Mellia.db", check_same_thread=False)
 mycursor = db.cursor()
 
 def main(page: ft.Page):
@@ -60,8 +56,40 @@ def main(page: ft.Page):
         if e.files and len(e.files):
             with open(e.files[0].path, 'rb') as r:
                 IMGScale.image_src_base64 = base64.b64encode(r.read()).decode('utf-8')
+                IMGScale.image_src = str(e.files[0].path)
                 TestImgcontainer.image_src = str(e.files[0].path)
                 print(e.files[0].path)
+                try:
+                    src_path = IMGScale.image_src
+                    destination_path = ItemDir
+
+                    file_name = os.path.basename(src_path)
+
+                    destination = os.path.join(destination_path,file_name)
+
+
+                    #change Directory to Destination for Display 
+                    try:
+                        shutil.copy(src_path, destination)
+                        print("Photo Replaced")
+                        AvatarSettings.image_src = str(destination)
+                        print("Product Directory changed")
+                    except Exception as error:
+                        print(error)
+                    
+
+                    print(destination)
+                    
+
+
+                except Exception as error:
+                    print(error)
+                
+
+
+                
+                saveAVT.visible = True
+                AVTupload.visible = False
                 page.update()
     def ViewProduct(e):
         ViewProductList = """ SELECT name FROM producttb
@@ -89,9 +117,9 @@ def main(page: ft.Page):
 
         
         if CategoriesSelection.value == "Drink & Coffee":
-            SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+            SaveItems = "INSERT INTO producttb (id, name, price, content, image) VALUES (?, ?, ?, ?, ?)"
             Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
-            PriceProduct.value = str(SetPrice.value)+" $"
+            PriceProduct.value = str(SetPrice.value)+" đ"
             TitleProduct.value = TitleIMG.value
             NoteProduct.value = ContentProduct.value
             try:
@@ -104,7 +132,7 @@ def main(page: ft.Page):
             except Exception as error:
                 print(error)
         elif CategoriesSelection.value == "Desserts & Sidedishes":
-            SaveItems = "INSERT INTO productsb (id, name, price, content, image) VALUES (%s, %s, %s, %s, %s)"
+            SaveItems = "INSERT INTO productsb (id, name, price, content, image) VALUES (?, ?, ?, ?, ?)"
             Items = (int(IDproduct.value),str(TitleIMG.value),int(SetPrice.value),str(ContentProduct.value),TestImgcontainer.image_src)
             PriceProduct.value = SetPrice.value
             TitleProduct.value = TitleIMG.value
@@ -145,7 +173,7 @@ def main(page: ft.Page):
 
 
     TitleProduct = ft.Text(size=20,weight=ft.FontWeight.BOLD,color="white")
-    PriceProduct = ft.Text(value=str(SetPrice.value)+"$",weight=ft.FontWeight.BOLD,size=20,color="white")
+    PriceProduct = ft.Text(value=str(SetPrice.value)+"đ",weight=ft.FontWeight.BOLD,size=20,color="white")
     NoteProduct = ft.Text(color="white")
     
     
@@ -261,7 +289,7 @@ def main(page: ft.Page):
                                                         [
                                                             ft.Text(value=obj_name,size=20,weight=ft.FontWeight.BOLD,color="white"),
                                                             ft.Text(value=obj_note,color="white"),
-                                                            ft.Text(value=str(obj_price)+"$",size=20,weight="bold",color="white"),
+                                                            ft.Text(value=str(obj_price)+"đ",size=20,weight="bold",color="white"),
                                                         ],
                                                         width=150
                                                     ),
@@ -319,7 +347,7 @@ def main(page: ft.Page):
                                                         [
                                                             ft.Text(value=obj_name,size=20,weight=ft.FontWeight.BOLD,color="white"),
                                                             ft.Text(value=obj_note,color="white"),
-                                                            ft.Text(value=str(obj_price)+"$",size=20,weight="bold",color="white"),
+                                                            ft.Text(value=str(obj_price)+"đ",size=20,weight="bold",color="white"),
                                                         ],
                                                         width=150
                                                     ),
@@ -582,9 +610,9 @@ def main(page: ft.Page):
 
 
         ChangesInserted = '''
-            UPDATE Mellia_user SET username = %s, password = %s,
-            phonenb = %s, role = %s, email = %s,
-            firstname = %s, lastname = %s WHERE id = 1
+            UPDATE Mellia_user SET username = ?, password = ?,
+            phonenb = ?, role = ?, email = ?,
+            firstname = ?, lastname = ? WHERE id = 1
         '''
         try:
             if NameEdit.value == "" or PasswordEdit.value == "" or PhonNBEdit.value == "" or RoleEdit.value == "" :
@@ -653,19 +681,26 @@ def main(page: ft.Page):
         page.update()
 
 
-    
+   
     def SearchResults(e):
+       
         try:
-            ResultQueriesCommand = f"""SELECT name, price, content, image FROM producttb WHERE name = '{SearchTool.value}'
+            
+            SearchValue = (SearchTool.value,SearchTool.value)
+
+            ResultQueriesCommand = """SELECT name, price, content, image FROM producttb WHERE name = ?
                                     UNION 
-                                    SELECT name, price, content, image FROM productsb WHERE name = '{SearchTool.value}'
-                                     """,
-            mycursor.execute(*ResultQueriesCommand)
+                                    SELECT name, price, content, image FROM productsb WHERE name = ?
+                                    """
+            mycursor.execute(ResultQueriesCommand,SearchValue)
             for obj in mycursor.fetchall():
+                
                 name = obj[0]
                 price = obj[1]
                 content = obj[2]
                 image = obj[3]
+
+        
             
             ResultList.controls.clear()
             QueriesImg.image_src = str(image)
@@ -716,7 +751,7 @@ def main(page: ft.Page):
                                 ft.Row(
                                     [
                                         QueriesPrice,
-                                        ft.Text("$",color="white",weight="bold",size=50)
+                                        ft.Text("đ",color="white",weight="bold",size=50)
                                     ]
                                 ),
                                 
@@ -813,6 +848,9 @@ def main(page: ft.Page):
                     file_name = os.path.basename(src_path)
 
                     destination = os.path.join(destination_path,file_name)
+
+
+                    #change Directory to Destination for Display 
                     try:
                         shutil.copy(src_path, destination)
                         print("Photo Replaced")
@@ -844,7 +882,7 @@ def main(page: ft.Page):
     def SaveAVTimage(e):
         itemImg = [AvatarSettings.image_src]
         SaveQueries = '''
-                UPDATE Mellia_user SET avt = %s WHERE id = 1
+                UPDATE Mellia_user SET avt = ? WHERE id = 1
             '''
         try:
             mycursor.execute(SaveQueries,itemImg)
@@ -1321,7 +1359,7 @@ def main(page: ft.Page):
                 ]
             )
         )
-        add_item = "INSERT INTO mellia_orders (id, tb, quantity, order_slot, product, price, staffname, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        add_item = "INSERT INTO mellia_orders (id, tb, quantity, order_slot, product, price, staffname, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         items = (int(name.value),int(table.value),int(Quantity_choose.value),
                  int(Order_field.value),str(product.value),int(Price_summary.value),
                  str(Staff_name.value),str(StatementOrders.value))
@@ -1472,7 +1510,7 @@ def main(page: ft.Page):
         page.update()
 
     def SaveBill(e):
-        SaveChanged = "INSERT INTO mellia_bill (tb, total, settime, method, coupon) VALUES (%s, %s, %s, %s, %s)"
+        SaveChanged = "INSERT INTO mellia_bill (tb, total, settime, method, coupon) VALUES (?, ?, ?, ?, ?)"
         SetdatetTime = f"{Year.value}-{Month.value}-{Month.value}"
         insertedChanged = (int(SlotID.value),int(total_payment.value), SetdatetTime, str(PaymentMethod.value), int(Coupon.value))
         try:
