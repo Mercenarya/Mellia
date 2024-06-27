@@ -44,11 +44,14 @@ def main(page: ft.Page):
     TitleProduct = ft.Text(size=40,weight=ft.FontWeight.BOLD,color="white")
     PriceProduct = ft.Text(value=str(SetPrice.value),size=50,weight=ft.FontWeight.BOLD,color="white")
     NoteProduct = ft.Text(size=15)
-
+    
+    Signalfeedback = ft.Text("New product Reveal",size=20,color="black",weight="bold",visible=False)
 
     #CREATE CUSTOMIZE'S LAYOUT
     def ImageDiscline(e):
+        IMGScale.image_src = None
         IMGScale.image_src_base64 = None
+        TestImgcontainer.image_src = None
         TestImgcontainer.image_src_base64 = None
         page.update()
     def Handle_loaded_file(e: ft.FilePickerResultEvent):
@@ -145,8 +148,8 @@ def main(page: ft.Page):
                 print("Saved")
             except Exception as error:
                 print(error)
+        Signalfeedback.visible = True
         db.commit()
-        
         page.update()
 
     file_picked = ft.FilePicker(on_result=Handle_loaded_file)
@@ -175,21 +178,26 @@ def main(page: ft.Page):
     PriceProduct = ft.Text(value=str(SetPrice.value)+"đ",weight=ft.FontWeight.BOLD,size=20,color="white")
     NoteProduct = ft.Text(color="white")
     
-    
+    #CLEAR ALL INFORMATION FROM CUSTOMIZE PRODUCT INPUT
     def ClearItemChanges(e):
+        Signalfeedback.visible = False
         SetPrice.value = None
         TitleIMG.value = None
         IDproduct.value = None
         ContentProduct.value = None
         CategoriesSelection.value = None
+        IMGScale.image_src = None
+        TestImgcontainer.image_src = None
         page.update()
-    
+    #BUTTON
     IMGupload = ft.IconButton(icon=ft.icons.UPLOAD,icon_color="black",bgcolor="white",on_click= lambda _:file_picked.pick_files(
                                     allow_multiple=False, allowed_extensions=['png']),icon_size=20)
     IMGdiscilne = ft.IconButton(icon=ft.icons.DELETE,icon_color="black",bgcolor="white",on_click=ImageDiscline,icon_size=20)
     SaveItemButton = ft.ElevatedButton("Add new product",color="white",bgcolor="Blue",width=400,on_click=CategoriesCustomize)
     ClearItemButton = ft.ElevatedButton("Clear all changes",color="white",bgcolor="red",width=400,on_click=ClearItemChanges)
+    
 
+    #SET UP IMAGE CONTAINER
     IMGScale = ft.Container(
         image_src=None,
         bgcolor="white",
@@ -222,31 +230,44 @@ def main(page: ft.Page):
             
 
     )
+
+    #CUSTOM CUSTOMIZE INPUT LAYOUT WITH CONTAINER AND POSITION
     CustomLayut = ft.Container(
-        ft.Row(
+        ft.Column(
             [
-               
-               ft.Column(
-                   [
-                        IMGScale,
-                        ft.Row(
-                            [
-                                IMGupload,
-                                IMGdiscilne,
-                                
-                                # TestUpload
-                            ],
-                            width=650,
-                            alignment=ft.MainAxisAlignment.START
-                        )
-                   ]
-               ),
-               
-               ft.Column(
-                   [
-                       CustomizeInput     
-                   ]
-               )
+                ft.Row(
+                    [
+                        Signalfeedback
+                    ],
+                    alignment=ft.MainAxisAlignment.START
+                ),
+                ft.Row(
+                    [
+                    
+                    ft.Column(
+                        [
+                                IMGScale,
+                                ft.Row(
+                                    [
+                                        IMGupload,
+                                        IMGdiscilne,
+                                        
+                                        # TestUpload
+                                    ],
+                                    width=650,
+                                    alignment=ft.MainAxisAlignment.START
+                                )
+                        ]
+                    ),
+                    
+                    ft.Column(
+                        [
+                            CustomizeInput     
+                        ]
+                    )
+                    ]
+                ),
+                
             ]
         ),
         padding=ft.padding.only(left=100,top=50),
@@ -254,10 +275,7 @@ def main(page: ft.Page):
     )
 
 
-
-
-
-
+    #LIST ALL ITEMS IN MENU (DRINK AND FOOD)
     def ListItems(e):
         ViewAlltb = """ SELECT name,price,content,image
                 FROM producttb"""
@@ -432,6 +450,8 @@ def main(page: ft.Page):
         border=ft.border.BorderSide(2,"#6F4E37")
         
     )
+
+    #This is list for Drink
     List_product = ft.Row(
         [
             
@@ -439,6 +459,7 @@ def main(page: ft.Page):
         ],
         scroll=ft.ScrollMode.ALWAYS
     )
+    #This is list for food
     List_product_2 = ft.Row(
         [
             
@@ -506,6 +527,7 @@ def main(page: ft.Page):
             print(error)
         page.update()
     
+    #RECOVER ALL ACCOUNT'S INFORMATION
     def Recovery(e):
         QueryRecovery = "SELECT phonenb FROM Mellia_user WHERE id = 1"
         UpdateNewChange = f"""UPDATE Mellia_user 
@@ -518,18 +540,21 @@ def main(page: ft.Page):
                 pnb = obj[0]
 
             if PhoneRecover.value == pnb:
-                mycursor.execute(UpdateNewChange)
-                print("Complete !!!")
-                page.go("/Login")
-                db.commit()
+                if len(PasswordFieldRecover.value) > 6:
+                    mycursor.execute(UpdateNewChange)
+                    print("Complete !!!")
+                    page.go("/Login")
+                    db.commit()
+                else:
+                    CautionTextRecover.value = "Password must be more than 6 keywords"
             else:
                 CautionTextRecover.visible = True
 
         except Exception as error:
             print(error)
         page.update()
-
-
+    
+    #CLEAR ALL DATA FROM APPLICATION 
     def ClearallData(e):
         ClearBillData = '''      
             TRUNCATE TABLE Mellia_bill;      
@@ -554,14 +579,13 @@ def main(page: ft.Page):
             print(error)
     
         page.update()
+
     def ProfilePageReveal(e):
         ProfileShowUp.offset = ft.transform.Offset(2, 0)
         ProfileEdit.offset = ft.transform.Offset(-1,0)
-
+        rollbackbutton.visible = True
         ProfileShowUp.update()
         ProfileEdit.update()
-        # ProfileShowUp.visible = False
-        # ProfileEdit.visible = True
         page.update()
 
     def SaveProfileChanges(e):
@@ -618,37 +642,46 @@ def main(page: ft.Page):
                 if EmailAddress.value == "" or FirstnameEdit.value == "" or LastnameEdit.value == "":
                     ProfileShowUp.offset = ft.transform.Offset(0, 0)
                     ProfileEdit.offset = ft.transform.Offset(2,0)
+                    rollbackbutton.visible = False
                     print("No changes detected in field form")
             else:
-                mycursor.execute(ChangesInserted,Record)
-                mycursor.execute(UpdatedChanges)
-                for obj in mycursor.fetchall():
-                    usrd = obj[0]
-                    pwd = obj[1]
-                    phn = obj[2]
-                    rln = obj[3]
-                    eml = obj[4]
-                    fnl = obj[5]
-                    lnl = obj[6]
+                if len(PasswordEdit.value) < 6 or len(PhonNBEdit.value) < 10 or len(PhonNBEdit.value) > 10:
+                    if "@gmail.com" not in EmailAddress.value :
+                        ProfileShowUp.offset = ft.transform.Offset(0, 0)
+                        ProfileEdit.offset = ft.transform.Offset(2,0)
+                        rollbackbutton.visible = False
+                        print("No changes detected in field form")
+                else:
+                    mycursor.execute(ChangesInserted,Record)
+                    mycursor.execute(UpdatedChanges)
+                    for obj in mycursor.fetchall():
+                        usrd = obj[0]
+                        pwd = obj[1]
+                        phn = obj[2]
+                        rln = obj[3]
+                        eml = obj[4]
+                        fnl = obj[5]
+                        lnl = obj[6]
 
-                Usrname.value = usrd
-                Psword.value = pwd
-                Phoneline.value = phn
-                roleLine.value = rln
-                EmailLine.value = eml
-                FnLine.value = fnl
-                lnLine.value = lnl
+                    Usrname.value = usrd
+                    Psword.value = pwd
+                    Phoneline.value = phn
+                    roleLine.value = rln
+                    EmailLine.value = eml
+                    FnLine.value = fnl
+                    lnLine.value = lnl
 
-                #Avatar Customize
-                
-                Greeting.value = f"Welcome back, {usrd}"
+                    #Avatar Customize
+                    
+                    Greeting.value = f"Welcome back, {usrd}"
 
-                ProfileShowUp.offset = ft.transform.Offset(0, 0)
-                ProfileEdit.offset = ft.transform.Offset(2,0)
-                ProfileShowUp.update()
-                ProfileEdit.update()
-                print("Changes Reveal")
-                db.commit()
+                    ProfileShowUp.offset = ft.transform.Offset(0, 0)
+                    ProfileEdit.offset = ft.transform.Offset(2,0)
+                    ProfileShowUp.update()
+                    ProfileEdit.update()
+                    rollbackbutton.visible = False
+                    print("Changes Reveal")
+                    db.commit()
 
                 
         except Exception as error:
@@ -680,7 +713,7 @@ def main(page: ft.Page):
         page.update()
 
 
-   
+    #SEARCH RESULT DISPLAY
     def SearchResults(e):
        
         try:
@@ -715,16 +748,19 @@ def main(page: ft.Page):
         page.update()
 
 
-    
+    #APPEAR WHEN RESULT NOT FOUND
     ResultNotFound = ft.Text("Result not found",size=40,weight="bold",color="black",visible=False)
-
+    
+    #RUSULT DISPLAY POSITION
     ResultList = ft.Column(
         [
 
         ],
         scroll=True
     )
+    
 
+    #IMAGE, CONTAINER FOR RESULT DESIGN
     QueriesImg = ft.Container(
         image_src=None,
         bgcolor="white",
@@ -737,6 +773,7 @@ def main(page: ft.Page):
     QueriesPrice = ft.Text(color="white",weight="bold",size=50)
     QueriesContent = ft.Text(color="white",size=30)
 
+    #CUSTOM RESULT LAYOUT
     ResultLayout = ft.Container(
         ft.Row(
             [
@@ -774,7 +811,7 @@ def main(page: ft.Page):
     )
 
     #THIS IS FOR LOGIN FORM
-    Greeting = ft.Text(f"Welcome back, {usr}", size=20,color="white",text_align='center')
+    Greeting = ft.Text(f"Welcome back, {ln}", size=20,color="white",text_align='center')
     CautionText = ft.Text("Wrong username or password, try again",color="red",visible=False,size=15)
     UsernameField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,color="white",label="Username",label_style=ft.TextStyle(color="white",))
     PasswordField = ft.TextField(width=300,border=ft.InputBorder.UNDERLINE,can_reveal_password=True,password=True,color="white",label="password",label_style=ft.TextStyle(color="white",))
@@ -868,7 +905,7 @@ def main(page: ft.Page):
                 
 
 
-                
+                rollbackbutton.visible = True
                 saveAVT.visible = True
                 AVTupload.visible = False
             
@@ -880,8 +917,6 @@ def main(page: ft.Page):
     #SAVE IMAGE SRC 
     def SaveAVTimage(e):
         ImageUpdate = '''SELECT avt FROM Mellia_user WHERE id = 1'''
-
-
         itemImg = [AvatarSettings.image_src]
         SaveQueries = '''
                 UPDATE Mellia_user SET avt = ? WHERE id = 1
@@ -894,7 +929,7 @@ def main(page: ft.Page):
         except Exception as error:
             print(error)
             
-        
+        rollbackbutton.visible = False
         ProfileShowUp.offset = ft.transform.Offset(0, 0)
         ProfileEdit.offset = ft.transform.Offset(2,0)
         AVTupload.visible = True
@@ -907,6 +942,17 @@ def main(page: ft.Page):
         db.commit()
         page.update()
 
+
+
+    def Rollback(e):
+        rollbackbutton.visible = False
+        ProfileShowUp.offset = ft.transform.Offset(0, 0)
+        ProfileEdit.offset = ft.transform.Offset(2,0)
+        AVTupload.visible = True
+        saveAVT.visible = False
+        ProfileShowUp.update()
+        ProfileEdit.update()
+        page.update()
     
     AVTdisplay_queries = '''
         SELECT avt FROM Mellia_user WHERE id = 1
@@ -934,7 +980,7 @@ def main(page: ft.Page):
         width=70,
         bgcolor="grey",
         border_radius=100,
-        border=ft.border.all(1,"black")
+        border=ft.border.all(1,"white")
     )
 
 
@@ -1982,6 +2028,16 @@ def main(page: ft.Page):
 
 
     #----------------------------------------------------------------------------------
+    #SETTINGS LAYOUT
+    
+    #Button
+    rollbackbutton = ft.ElevatedButton("Back",width=150,color="black",bgcolor="white",visible=False,on_click=Rollback)
+    
+
+
+
+    #Container
+    
     ProfileEdit =  ft.Container(
                 
         ft.Column(
@@ -2164,6 +2220,7 @@ def main(page: ft.Page):
                     border = ft.border.all(1,"grey"),
                     padding=ft.padding.only(left=20,top=3)
                 ),
+                rollbackbutton
                 
             ]
         ),
@@ -2350,6 +2407,7 @@ def main(page: ft.Page):
                     border = ft.border.all(1,"grey"),
                     padding=ft.padding.only(left=20,top=3)
                 ),
+                rollbackbutton
                 
             ]
         ),
@@ -2489,9 +2547,11 @@ def main(page: ft.Page):
             ft.Row(
                 [
                     ProfileShowUp,
-                    ProfileEdit
+                    ProfileEdit,
+                    
                 ]
-            )
+            ),
+           
         ],
         scroll=ft.ScrollMode.ALWAYS
     )
