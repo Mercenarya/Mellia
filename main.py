@@ -30,7 +30,9 @@ try:
 except Exception as error:
     print(error)
 
-db = sqlite3.connect("C:/MELLIACOFFEE/SHOP/MelliaCF/Mellia.db", check_same_thread=False)
+db_path = os.path.join(os.path.dirname(__file__),"Mellia.db")
+db = sqlite3.connect(db_path, check_same_thread=False)
+print(db_path)
 mycursor = db.cursor()
 
 def main(page: ft.Page):
@@ -54,6 +56,8 @@ def main(page: ft.Page):
         TestImgcontainer.image_src = None
         TestImgcontainer.image_src_base64 = None
         page.update()
+
+        
     def Handle_loaded_file(e: ft.FilePickerResultEvent):
         if e.files and len(e.files):
             with open(e.files[0].path, 'rb') as r:
@@ -1019,7 +1023,7 @@ def main(page: ft.Page):
             ft.Stack(
                 [
                     ft.Image(
-                        src="images/Cafeteria.png",
+                        src="C:/MelliaCoffee/SHOP/MelliaCF/assets/images/Cafeteria.png",
                         fit=ft.ImageFit.FILL,
                         width=2000,
                         height=1000,
@@ -1104,7 +1108,7 @@ def main(page: ft.Page):
             ft.Stack(
                 [
                     ft.Image(
-                        src="images/Cafeteria.png",
+                        src="C:/MelliaCoffee/SHOP/MelliaCF/assets/images/Cafeteria.png",
                         fit=ft.ImageFit.FILL,
                         width=2000,
                         height=1000,
@@ -1169,7 +1173,7 @@ def main(page: ft.Page):
         ft.Stack(
             [
                 ft.Image(
-                    src="images/cafeteria.png",
+                    src="C:/MelliaCoffee/SHOP/MelliaCF/assets/images/cafeteria.png",
                     fit="cover",
                     width=2000
                 ),
@@ -1986,7 +1990,7 @@ def main(page: ft.Page):
 
 
     PromotionImage = ft.Container(
-        image_src="images/capuchino.png",
+        image_src="C:/MelliaCoffee/SHOP/MelliaCF/assets/images/capuchino.png",
         width=350,
         height=350,
     )
