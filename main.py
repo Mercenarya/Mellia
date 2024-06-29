@@ -30,9 +30,7 @@ try:
 except Exception as error:
     print(error)
 
-db_path = os.path.join(os.path.dirname(__file__),"Mellia.db")
-db = sqlite3.connect(db_path, check_same_thread=False)
-print(db_path)
+db = sqlite3.connect("C:/MELLIACOFFEE/SHOP/MelliaCF/Mellia.db", check_same_thread=False)
 mycursor = db.cursor()
 
 def main(page: ft.Page):
